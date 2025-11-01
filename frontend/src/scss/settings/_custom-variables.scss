@@ -1,3 +1,8 @@
+@use "sass:color";
+@use "sass:map";
+@use "sass:list";
+@use "sass:string";
+
 // Variables
 //
 // Variables should follow the `$component-state-property-size` formula for
@@ -19,7 +24,7 @@ $black: #000;
 
 $grays: ();
 // stylelint-disable-next-line scss/dollar-variable-default
-$grays: map-merge(
+$grays: map.merge(
   (
     '100': $gray-100,
     '200': $gray-200,
@@ -55,7 +60,7 @@ $cyan: #00bcd4; // change
 
 $colors: ();
 // stylelint-disable-next-line scss/dollar-variable-default
-$colors: map-merge(
+$colors: map.merge(
   (
     'blue': $blue,
     'indigo': $indigo,
@@ -85,7 +90,7 @@ $dark: $gray-800; // change
 
 $theme-colors: (); // change
 // stylelint-disable-next-line scss/dollar-variable-default
-$theme-colors: map-merge(
+$theme-colors: map.merge(
   (
     'primary': $primary,
     'secondary': $secondary,
@@ -149,7 +154,7 @@ $spacers: (
 // This variable affects the `.h-*` and `.w-*` classes.
 $sizes: ();
 // stylelint-disable-next-line scss/dollar-variable-default
-$sizes: map-merge(
+$sizes: map.merge(
   (
     25: 25%,
     50: 50%,
@@ -254,7 +259,7 @@ $transition-collapse: height 0.35s ease;
 
 $embed-responsive-aspect-ratios: ();
 // stylelint-disable-next-line scss/dollar-variable-default
-$embed-responsive-aspect-ratios: join(((21 9), (16 9), (4 3), (1 1)), $embed-responsive-aspect-ratios);
+$embed-responsive-aspect-ratios: list.join(((21 9), (16 9), (4 3), (1 1)), $embed-responsive-aspect-ratios);
 
 // Typography
 //
@@ -496,7 +501,7 @@ $input-border-radius-lg: $border-radius-lg;
 $input-border-radius-sm: $border-radius-sm;
 
 $input-focus-bg: $input-bg;
-$input-focus-border-color: lighten($component-active-bg, 25%);
+$input-focus-border-color: color.scale($component-active-bg, $lightness: 25%);
 $input-focus-color: $input-color;
 $input-focus-width: $input-btn-focus-width;
 $input-focus-box-shadow: $input-btn-focus-box-shadow;
@@ -565,7 +570,7 @@ $custom-control-indicator-focus-box-shadow: $input-focus-box-shadow;
 $custom-control-indicator-focus-border-color: $input-focus-border-color;
 
 $custom-control-indicator-active-color: $component-active-color;
-$custom-control-indicator-active-bg: lighten($component-active-bg, 35%);
+$custom-control-indicator-active-bg: color.scale($component-active-bg, $lightness: 35%);
 $custom-control-indicator-active-box-shadow: none;
 $custom-control-indicator-active-border-color: $custom-control-indicator-active-bg;
 
@@ -660,7 +665,7 @@ $custom-range-thumb-focus-box-shadow:
   0 0 0 1px $body-bg,
   $input-focus-box-shadow;
 $custom-range-thumb-focus-box-shadow-width: $input-focus-width; // For focus box shadow issue in IE/Edge
-$custom-range-thumb-active-bg: lighten($component-active-bg, 35%);
+$custom-range-thumb-active-bg: color.scale($component-active-bg, $lightness: 35%);
 $custom-range-thumb-disabled-bg: $gray-500;
 
 $custom-file-height: $input-height;
@@ -708,7 +713,7 @@ $form-feedback-icon-invalid: str-replace(
 
 $form-validation-states: ();
 // stylelint-disable-next-line scss/dollar-variable-default
-$form-validation-states: map-merge(
+$form-validation-states: map.merge(
   (
     'valid': (
       'color': $form-feedback-valid-color,
@@ -823,7 +828,7 @@ $dropdown-divider-margin-y: $nav-divider-margin-y;
 $dropdown-box-shadow: 0 0.5rem 1rem rgba($black, 0.175);
 
 $dropdown-link-color: $gray-900;
-$dropdown-link-hover-color: darken($gray-900, 5%);
+$dropdown-link-hover-color: color.scale($gray-900, $lightness: -5%);
 $dropdown-link-hover-bg: $gray-100;
 
 $dropdown-link-active-color: $component-active-color;
@@ -929,7 +934,7 @@ $popover-border-color: rgba($black, 0.2);
 $popover-border-radius: $border-radius-lg;
 $popover-box-shadow: 0 0.25rem 0.5rem rgba($black, 0.2);
 
-$popover-header-bg: darken($popover-bg, 3%);
+$popover-header-bg: color.scale($popover-bg, $lightness: -3%);
 $popover-header-color: $headings-color;
 $popover-header-padding-y: 0.5rem;
 $popover-header-padding-x: 0.75rem;
@@ -942,7 +947,7 @@ $popover-arrow-width: 1rem;
 $popover-arrow-height: 0.5rem;
 $popover-arrow-color: $popover-bg;
 
-$popover-arrow-outer-color: fade-in($popover-border-color, 0.05);
+$popover-arrow-outer-color: color.adjust($popover-border-color, $alpha: 0.05);
 
 // Toasts
 
@@ -1098,7 +1103,7 @@ $breadcrumb-margin-bottom: 1rem;
 $breadcrumb-bg: $body-bg; // change
 $breadcrumb-divider-color: $gray-600;
 $breadcrumb-active-color: $gray-600;
-$breadcrumb-divider: quote('/');
+$breadcrumb-divider: string.quote('/');
 
 $breadcrumb-border-radius: $border-radius;
 
@@ -1176,4 +1181,4 @@ $positions: static, relative, absolute, fixed, sticky;
 // Printing
 
 $print-page-size: a3;
-$print-body-min-width: map-get($grid-breakpoints, 'lg');
+$print-body-min-width: map.get($grid-breakpoints, 'lg');
