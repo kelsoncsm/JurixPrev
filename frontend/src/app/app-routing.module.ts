@@ -32,8 +32,7 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: '/dashboard/analytics',
-        pathMatch: 'full'
+        loadComponent: () => import('./demo/dashboard/dash-analytics.component').then((c) => c.DashAnalyticsComponent)
       },
       {
         path: 'analytics',
@@ -58,6 +57,50 @@ const routes: Routes = [
       {
         path: 'sample-page',
         loadComponent: () => import('./demo/other/sample-page/sample-page.component').then((c) => c.SamplePageComponent)
+      }
+    ]
+  },
+  {
+    path: 'documentos',
+    component: AdminComponent,
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./demo/documentos/lista-documentos/lista-documentos.component').then((c) => c.ListaDocumentosComponent)
+      },
+      {
+        path: 'novo',
+        loadComponent: () => import('./demo/documentos/gerar-documento/gerar-documento.component').then((c) => c.GerarDocumentoComponent)
+      },
+      {
+        path: 'editar/:id',
+        loadComponent: () => import('./demo/documentos/gerar-documento/gerar-documento.component').then((c) => c.GerarDocumentoComponent)
+      },
+      {
+        path: 'visualizar/:id',
+        loadComponent: () => import('./demo/documentos/gerar-documento/gerar-documento.component').then((c) => c.GerarDocumentoComponent)
+      }
+    ]
+  },
+  {
+    path: 'clientes',
+    component: AdminComponent,
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./components/lista-clientes/lista-clientes.component').then((c) => c.ListaClientesComponent)
+      },
+      {
+        path: 'novo',
+        loadComponent: () => import('./components/cadastrar-cliente/cadastrar-cliente.component').then((c) => c.CadastrarClienteComponent)
+      },
+      {
+        path: 'editar/:id',
+        loadComponent: () => import('./components/cadastrar-cliente/cadastrar-cliente.component').then((c) => c.CadastrarClienteComponent)
+      },
+      {
+        path: 'visualizar/:id',
+        loadComponent: () => import('./components/cadastrar-cliente/cadastrar-cliente.component').then((c) => c.CadastrarClienteComponent)
       }
     ]
   }
