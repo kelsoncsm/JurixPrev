@@ -1,0 +1,258 @@
+.btn-page .btn {
+  margin-right: 8px;
+}
+
+.tab-card {
+  .nav-tabs {
+    margin-bottom: 1rem;
+  }
+
+  .nav-pills {
+    margin-bottom: 1rem;
+
+    .nav-item {
+      text-align: center;
+    }
+  }
+}
+
+.hidden {
+  display: none;
+}
+
+.table {
+  td,
+  th {
+    font-family: $theme-font-family;
+  }
+}
+
+.pcoded-header {
+  .search-bar {
+    display: block;
+  }
+}
+
+.h-list-body .chat-messages .chat-menu-reply > div p,
+.pcoded-header.header-blue a.h-back-user-list {
+  color: $theme-font-color;
+}
+
+.header-chat .h-list-footer .input-group .form-control {
+  height: auto;
+}
+
+.pcoded-navbar.menu-light {
+  .pcoded-inner-navbar > app-nav-group > app-nav-collapse > li.active > a,
+  .pcoded-inner-navbar > app-nav-group > app-nav-collapse > li.pcoded-trigger > a,
+  .pcoded-inner-navbar > app-nav-group > app-nav-collapse > li:hover > a,
+  .pcoded-inner-navbar > app-nav-group > app-nav-item > li.active > a,
+  .pcoded-inner-navbar > app-nav-group > app-nav-item > li.pcoded-trigger > a,
+  .pcoded-inner-navbar > app-nav-group > app-nav-item > li:hover > a {
+    background: rgba(202, 202, 202, 0.3);
+
+    &:before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 4px;
+      height: 100%;
+      background: $primary-color;
+    }
+  }
+}
+
+.flex {
+  flex: 1 1 auto;
+  text-align: center;
+}
+
+.fixed-button.active {
+  bottom: 50px;
+  opacity: 1;
+}
+
+.fixed-button {
+  position: fixed;
+  bottom: -50px;
+  right: 30px;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  z-index: 9;
+  -webkit-transition: all 0.5s ease;
+  transition: all 0.5s ease;
+}
+
+.page-item .page-link {
+  border-radius: 0px;
+}
+
+#customerChart .apexcharts-tooltip {
+  color: #000000;
+}
+
+#customerChart .apexcharts-tooltip .apexcharts-tooltip-series-group.active {
+  background: #ffffff !important;
+}
+
+/* Estilos personalizados para o logo no menu colapsado */
+.navbar-collapsed {
+  .b-brand {
+    .logo-thumb {
+      display: block !important;
+      width: 40px !important;
+      height: 40px !important;
+      margin: 0 auto !important;
+      object-fit: contain !important;
+    }
+    
+    .logo-dark {
+      display: none !important;
+    }
+  }
+}
+
+/* Garantir que o logo principal seja exibido quando o menu não está colapsado */
+.pcoded-header:not(.navbar-collapsed) {
+  .b-brand {
+    .logo-dark {
+      display: block !important;
+      max-height: 50px !important;
+      width: auto !important;
+    }
+    
+    .logo-thumb {
+      display: none !important;
+    }
+  }
+}
+
+/* Ajustes responsivos para o logo */
+@media (max-width: 991px) {
+  .b-brand {
+    .logo-dark {
+      max-height: 40px !important;
+    }
+    
+    .logo-thumb {
+      width: 35px !important;
+      height: 35px !important;
+    }
+  }
+}
+
+/* Estilos personalizados para header com cor azul escura */
+.pcoded-header {
+  .m-header {
+    background-color: rgb(29, 53, 121) !important;
+    color: white !important;
+    
+    .mobile-menu,
+    .header-mobile-collapse,
+    .mob-toggler {
+      color: white !important;
+      
+      i {
+        color: white !important;
+      }
+    }
+    
+    .b-brand {
+      .logo,
+      .logo-dark {
+        /* Substituir o src do logo para usar a versão branca */
+        content: url('/assets/images/juriprev-white.svg') !important;
+        display: inline-block !important;
+        max-height: 35px !important;
+        width: auto !important;
+      }
+    }
+  }
+  
+  .navbar-collapse {
+    background-color: rgb(29, 53, 121) !important;
+    color: white !important;
+    
+    .navbar-nav {
+      .nav-item {
+        .nav-link,
+        a {
+          color: white !important;
+        }
+        
+        i {
+          color: white !important;
+        }
+      }
+    }
+    
+    .dropdown-menu {
+      background-color: rgba(29, 53, 121, 0.95) !important;
+      
+      .dropdown-item {
+        color: white !important;
+        
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.1) !important;
+          color: white !important;
+        }
+      }
+    }
+  }
+}
+
+/* Funcionalidade de hover para o menu lateral */
+.pcoded-navbar {
+  transition: width 0.3s ease, transform 0.3s ease;
+  
+  /* Quando o menu está colapsado, expandir no hover */
+  &.navbar-collapsed {
+    &:hover {
+      width: 270px !important;
+      transform: translateX(0) !important;
+      z-index: 1030 !important;
+      
+      /* Mostrar textos dos itens do menu */
+      .navbar-content {
+        .nav {
+          .pcoded-mtext,
+          .pcoded-submenu-item {
+            opacity: 1 !important;
+            visibility: visible !important;
+          }
+        }
+      }
+      
+      /* Ajustar o overlay quando hover */
+      ~ .pcoded-main-container {
+        &::before {
+          content: '';
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0, 0, 0, 0.2);
+          z-index: 1025;
+          pointer-events: none;
+        }
+      }
+    }
+  }
+}
+
+/* Melhorar a transição dos textos no menu colapsado */
+.navbar-collapsed {
+  .pcoded-mtext,
+  .pcoded-submenu-item {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+}
+
+/* Ocultar o botão de colapso já que agora funciona apenas com hover */
+.mobile-menu {
+  display: none !important;
+}

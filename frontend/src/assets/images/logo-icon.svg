@@ -1,0 +1,36 @@
+<svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gradientWhiteIcon" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f0f0f0;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="gradientOrangeIcon" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff6b35;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ff8c42;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Fundo circular branco -->
+  <circle cx="20" cy="20" r="18" fill="url(#gradientWhiteIcon)" stroke="#1d3579" stroke-width="2"/>
+  
+  <!-- Ícone de Graduação (Capelo) - Versão Compacta -->
+  <g transform="translate(20, 20)">
+    <!-- Capelo -->
+    <path d="M-8 -2 L8 -2 L9 -4 L-9 -4 Z" fill="#1d3579"/>
+    <rect x="-1" y="-4" width="2" height="8" fill="#1d3579"/>
+    
+    <!-- Borla -->
+    <circle cx="8" cy="-3" r="1.5" fill="url(#gradientOrangeIcon)"/>
+    <line x1="7.5" y1="-3" x2="6" y2="-1" stroke="url(#gradientOrangeIcon)" stroke-width="1"/>
+    
+    <!-- Livro -->
+    <rect x="-6" y="2" width="12" height="6" rx="1" fill="#1d3579"/>
+    <line x1="-4" y1="4" x2="4" y2="4" stroke="#ffffff" stroke-width="0.8"/>
+    <line x1="-4" y1="6" x2="2" y2="6" stroke="#ffffff" stroke-width="0.8"/>
+  </g>
+  
+  <!-- Texto "J" centralizado -->
+  <text x="20" y="28" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#1d3579" text-anchor="middle">
+    J
+  </text>
+</svg>
