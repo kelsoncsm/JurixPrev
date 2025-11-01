@@ -1,0 +1,116 @@
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { Cliente } from '../../models/cliente.model';
+import { ClienteService } from '../../services/cliente.service';
+
+@Component({
+  selector: 'app-lista-clientes',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './lista-clientes.component.html',
+  styleUrls: ['./lista-clientes.component.scss']
+})
+export class ListaClientesComponent implements OnInit, OnDestroy {
+  clientes: Cliente[] = [];
+  clientesFiltrados: Cliente[] = [];
+  termoBusca: string = '';
+  carregando: boolean = false;
+  private subscription: Subscription = new Subscription();
+
+  constructor(
+    private clienteService: ClienteService,
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
+    this.carregarClientes();
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
+  }
+
+  carregarClientes(): void {
+    this.carregando = true;
+    
+    const clientesSub = this.clienteService.obterTodosClientes().subscribe({
+      next: (clientes) => {
+        this.clientes = clientes;
+        this.aplicarFiltro();
+        this.carregando = false;
+      },
+      error: (erro) => {
+        console.error('Erro ao carregar clientes:', erro);
+        this.carregando = false;
+      }
+    });
+
+    this.subscription.add(clientesSub);
+  }
+
+  aplicarFiltro(): void {
+    if (!this.termoBusca.trim()) {
+      this.clientesFiltrados = [...this.clientes];
+    } else {
+      this.clientesFiltrados = this.clienteService.buscarClientes(this.termoBusca);
+    }
+  }
+
+  onBuscar(): void {
+    this.aplicarFiltro();
+  }
+
+  novoCliente(): void {
+    this.router.navigate(['/clientes/novo']);
+  }
+
+  editarCliente(id: string): void {
+    this.router.navigate(['/clientes/editar', id]);
+  }
+
+  visualizarCliente(id: string): void {
+    this.router.navigate(['/clientes/visualizar', id]);
+  }
+
+  excluirCliente(cliente: Cliente): void {
+    const confirmacao = confirm(`Tem certeza que deseja excluir o cliente "${cliente.nomeCompleto}"?`);
+    
+    if (confirmacao && cliente.id) {
+      const sucesso = this.clienteService.excluirCliente(cliente.id);
+      
+      if (sucesso) {
+        console.log('Cliente excluído com sucesso');
+        // A lista será atualizada automaticamente através do Observable
+      } else {
+        alert('Erro ao excluir cliente. Tente novamente.');
+      }
+    }
+  }
+
+  formatarCPF(cpf: string): string {
+    return this.clienteService.formatarCPF(cpf);
+  }
+
+  formatarData(data: Date): string {
+    if (!data) return '';
+    return new Date(data).toLocaleDateString('pt-BR');
+  }
+
+  obterIdadeAproximada(dataNascimento: Date): number {
+    if (!dataNascimento) return 0;
+    const hoje = new Date();
+    const nascimento = new Date(dataNascimento);
+    let idade = hoje.getFullYear() - nascimento.getFullYear();
+    const mesAtual = hoje.getMonth();
+    const mesNascimento = nascimento.getMonth();
+    
+    if (mesAtual < mesNascimento || (mesAtual === mesNascimento && hoje.getDate() < nascimento.getDate())) {
+      idade--;
+    }
+    
+    return idade;
+  }
+}

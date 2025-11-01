@@ -1,0 +1,440 @@
+<app-card [cardTitle]="modoEdicao ? 'Editar Documento' : 'Gerar Novo Documento'" [options]="false">
+  <!-- Progress Steps -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="progress-steps">
+        <div class="d-flex justify-content-between">
+          <div 
+            *ngFor="let aba of abas; let i = index" 
+            class="step-item"
+            [class.active]="aba.id === abaAtiva"
+            [class.completed]="aba.ativa && aba.id !== abaAtiva"
+            [class.clickable]="podeAcessarAba(aba.id)"
+            (click)="podeAcessarAba(aba.id) ? navegarParaAba(aba.id) : null"
+          >
+            <div class="step-circle">
+              <i [class]="aba.icone"></i>
+            </div>
+            <div class="step-label">{{ aba.titulo }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="carregando" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Carregando...</span>
+    </div>
+  </div>
+
+  <!-- Conteúdo das Abas -->
+  <div *ngIf="!carregando">
+    
+    <!-- Aba Tipo -->
+    <div *ngIf="abaAtiva === 'tipo'" class="tab-content">
+      <form [formGroup]="tipoForm">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label for="tipoDocumento" class="form-label">Tipo de Documento *</label>
+              <select 
+                class="form-select" 
+                id="tipoDocumento" 
+                formControlName="tipoDocumento"
+                [class.is-invalid]="tipoControls['tipoDocumento'].invalid && tipoControls['tipoDocumento'].touched"
+              >
+                <option value="">Selecione o tipo de documento</option>
+                <option *ngFor="let tipo of tiposDocumento" [value]="tipo">{{ tipo }}</option>
+              </select>
+              <div class="invalid-feedback">
+                Por favor, selecione o tipo de documento.
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label for="tomTexto" class="form-label">Tom do Texto *</label>
+              <select 
+                class="form-select" 
+                id="tomTexto" 
+                formControlName="tomTexto"
+                [class.is-invalid]="tipoControls['tomTexto'].invalid && tipoControls['tomTexto'].touched"
+              >
+                <option *ngFor="let tom of tonsTexto" [value]="tom">{{ tom }}</option>
+              </select>
+              <div class="invalid-feedback">
+                Por favor, selecione o tom do texto.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Descrição do tipo selecionado -->
+        <div *ngIf="tipoForm.value.tipoDocumento" class="alert alert-info">
+          <h6><i class="fas fa-info-circle"></i> Sobre este tipo de documento:</h6>
+          <p class="mb-0">
+            <span [ngSwitch]="tipoForm.value.tipoDocumento">
+              <span *ngSwitchCase="'Petição Inicial'">
+                Documento que inicia um processo judicial, contendo os fatos, fundamentos jurídicos e pedidos.
+              </span>
+              <span *ngSwitchCase="'Procuração'">
+                Instrumento que outorga poderes a um advogado para representar o cliente em juízo.
+              </span>
+              <span *ngSwitchCase="'Recurso Inominado'">
+                Recurso cabível contra sentenças proferidas pelos Juizados Especiais.
+              </span>
+              <span *ngSwitchDefault>
+                Documento jurídico específico para sua necessidade processual.
+              </span>
+            </span>
+          </p>
+        </div>
+      </form>
+    </div>
+
+    <!-- Aba Dados -->
+    <div *ngIf="abaAtiva === 'dados'" class="tab-content">
+      <form [formGroup]="dadosForm">
+        <h5 class="mb-3"><i class="fas fa-user"></i> Dados do Cliente</h5>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label for="nomeCliente" class="form-label">Nome Completo *</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="nomeCliente" 
+                formControlName="nomeCliente"
+                [class.is-invalid]="dadosControls['nomeCliente'].invalid && dadosControls['nomeCliente'].touched"
+                placeholder="Digite o nome completo"
+              />
+              <div class="invalid-feedback">
+                Por favor, informe o nome do cliente.
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label for="cpfCnpj" class="form-label">CPF/CNPJ</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="cpfCnpj" 
+                formControlName="cpfCnpj"
+                placeholder="000.000.000-00 ou 00.000.000/0000-00"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-8">
+            <div class="mb-3">
+              <label for="endereco" class="form-label">Endereço</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="endereco" 
+                formControlName="endereco"
+                placeholder="Rua, número, bairro, cidade - UF"
+              />
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="mb-3">
+              <label for="telefone" class="form-label">Telefone</label>
+              <input 
+                type="tel" 
+                class="form-control" 
+                id="telefone" 
+                formControlName="telefone"
+                placeholder="(00) 00000-0000"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label for="email" class="form-label">E-mail</label>
+              <input 
+                type="email" 
+                class="form-control" 
+                id="email" 
+                formControlName="email"
+                [class.is-invalid]="dadosControls['email'].invalid && dadosControls['email'].touched"
+                placeholder="email@exemplo.com"
+              />
+              <div class="invalid-feedback">
+                Por favor, informe um e-mail válido.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <hr class="my-4">
+
+        <h5 class="mb-3"><i class="fas fa-gavel"></i> Dados Processuais</h5>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="mb-3">
+              <label for="numeroProcesso" class="form-label">Número do Processo</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="numeroProcesso" 
+                formControlName="numeroProcesso"
+                placeholder="0000000-00.0000.0.00.0000"
+              />
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="mb-3">
+              <label for="vara" class="form-label">Vara</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="vara" 
+                formControlName="vara"
+                placeholder="Ex: 1ª Vara Cível"
+              />
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="mb-3">
+              <label for="comarca" class="form-label">Comarca</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="comarca" 
+                formControlName="comarca"
+                placeholder="Ex: São Paulo"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label for="valorCausa" class="form-label">Valor da Causa (R$)</label>
+              <input 
+                type="number" 
+                class="form-control" 
+                id="valorCausa" 
+                formControlName="valorCausa"
+                placeholder="0,00"
+                step="0.01"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-12">
+            <div class="mb-3">
+              <label for="fundamentosJuridicos" class="form-label">Fundamentos Jurídicos</label>
+              <textarea 
+                class="form-control" 
+                id="fundamentosJuridicos" 
+                formControlName="fundamentosJuridicos"
+                rows="3"
+                placeholder="Descreva os fundamentos jurídicos do caso..."
+              ></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-12">
+            <div class="mb-3">
+              <label for="pedidos" class="form-label">Pedidos</label>
+              <textarea 
+                class="form-control" 
+                id="pedidos" 
+                formControlName="pedidos"
+                rows="3"
+                placeholder="Descreva os pedidos a serem formulados..."
+              ></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-12">
+            <div class="mb-3">
+              <label for="observacoes" class="form-label">Observações</label>
+              <textarea 
+                class="form-control" 
+                id="observacoes" 
+                formControlName="observacoes"
+                rows="2"
+                placeholder="Informações adicionais relevantes..."
+              ></textarea>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Aba Conteúdo -->
+    <div *ngIf="abaAtiva === 'conteudo'" class="tab-content">
+      <!-- Botão IA Jurídica -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-edit"></i> Conteúdo do Documento</h5>
+            <button 
+              type="button" 
+              class="btn btn-success"
+              (click)="gerarComIA()"
+              [disabled]="gerandoIA || !tipoForm.valid || !dadosForm.valid"
+            >
+              <span *ngIf="gerandoIA" class="spinner-border spinner-border-sm me-2" role="status"></span>
+              <i *ngIf="!gerandoIA" class="fas fa-robot me-2"></i>
+              {{ gerandoIA ? 'Gerando...' : 'IA Jurídica' }}
+            </button>
+          </div>
+          <small class="text-muted">
+            Use a IA Jurídica para gerar automaticamente o conteúdo baseado nos dados informados.
+          </small>
+        </div>
+      </div>
+
+      <form [formGroup]="conteudoForm">
+        <div class="row">
+          <div class="col-12">
+            <div class="mb-3">
+              <label for="titulo" class="form-label">Título do Documento *</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="titulo" 
+                formControlName="titulo"
+                [class.is-invalid]="conteudoControls['titulo'].invalid && conteudoControls['titulo'].touched"
+                placeholder="Digite o título do documento"
+              />
+              <div class="invalid-feedback">
+                Por favor, informe o título do documento.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-12">
+            <div class="mb-3">
+              <label for="conteudo" class="form-label">Conteúdo *</label>
+              <textarea 
+                class="form-control" 
+                id="conteudo" 
+                formControlName="conteudo"
+                [class.is-invalid]="conteudoControls['conteudo'].invalid && conteudoControls['conteudo'].touched"
+                rows="20"
+                placeholder="Digite ou gere o conteúdo do documento..."
+              ></textarea>
+              <div class="invalid-feedback">
+                Por favor, informe o conteúdo do documento.
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Aba Revisão -->
+    <div *ngIf="abaAtiva === 'revisao'" class="tab-content">
+      <h5 class="mb-4"><i class="fas fa-check"></i> Revisão Final</h5>
+      
+      <!-- Resumo dos dados -->
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card mb-3">
+            <div class="card-header">
+              <h6 class="mb-0"><i class="fas fa-file-alt"></i> Tipo de Documento</h6>
+            </div>
+            <div class="card-body">
+              <p class="mb-1"><strong>Tipo:</strong> {{ tipoForm.value.tipoDocumento }}</p>
+              <p class="mb-0"><strong>Tom:</strong> {{ tipoForm.value.tomTexto }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card mb-3">
+            <div class="card-header">
+              <h6 class="mb-0"><i class="fas fa-user"></i> Cliente</h6>
+            </div>
+            <div class="card-body">
+              <p class="mb-1"><strong>Nome:</strong> {{ dadosForm.value.nomeCliente }}</p>
+              <p class="mb-1" *ngIf="dadosForm.value.cpfCnpj"><strong>CPF/CNPJ:</strong> {{ dadosForm.value.cpfCnpj }}</p>
+              <p class="mb-0" *ngIf="dadosForm.value.email"><strong>E-mail:</strong> {{ dadosForm.value.email }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preview do documento -->
+      <div class="card">
+        <div class="card-header">
+          <h6 class="mb-0"><i class="fas fa-eye"></i> Preview do Documento</h6>
+        </div>
+        <div class="card-body">
+          <h5>{{ conteudoForm.value.titulo }}</h5>
+          <hr>
+          <div class="documento-preview">
+            <pre>{{ conteudoForm.value.conteudo }}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botões de Navegação -->
+  <div class="row mt-4" *ngIf="!carregando">
+    <div class="col-12">
+      <div class="d-flex justify-content-between">
+        <div>
+          <button 
+            type="button" 
+            class="btn btn-outline-secondary me-2"
+            (click)="cancelar()"
+          >
+            <i class="fas fa-times"></i> Cancelar
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-outline-primary"
+            (click)="abaAnterior()"
+            [disabled]="abaAtiva === 'tipo'"
+          >
+            <i class="fas fa-arrow-left"></i> Anterior
+          </button>
+        </div>
+        <div>
+          <button 
+            *ngIf="abaAtiva !== 'revisao'"
+            type="button" 
+            class="btn btn-primary me-2"
+            (click)="proximaAba()"
+          >
+            Próximo <i class="fas fa-arrow-right"></i>
+          </button>
+          <button 
+            *ngIf="abaAtiva === 'revisao'"
+            type="button" 
+            class="btn btn-success"
+            (click)="salvarDocumento()"
+            [disabled]="carregando"
+          >
+            <span *ngIf="carregando" class="spinner-border spinner-border-sm me-2" role="status"></span>
+            <i *ngIf="!carregando" class="fas fa-save me-2"></i>
+            {{ modoEdicao ? 'Atualizar' : 'Salvar' }} Documento
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</app-card>

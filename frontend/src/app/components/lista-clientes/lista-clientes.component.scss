@@ -1,0 +1,259 @@
+.lista-clientes-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header-section {
+  margin-bottom: 30px;
+  
+  h2 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-size: 28px;
+    font-weight: 600;
+  }
+}
+
+.actions-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.search-container {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+  max-width: 500px;
+  
+  @media (max-width: 768px) {
+    max-width: none;
+  }
+}
+
+.search-input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 2px solid #e1e8ed;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+  
+  &:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+  }
+  
+  &::placeholder {
+    color: #95a5a6;
+  }
+}
+
+.btn-search {
+  padding: 12px 20px;
+  background-color: #34495e;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+  
+  &:hover {
+    background-color: #2c3e50;
+  }
+}
+
+.btn-primary {
+  padding: 12px 24px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+  white-space: nowrap;
+  
+  &:hover {
+    background-color: #2980b9;
+  }
+}
+
+.content-section {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.loading-message, .empty-message {
+  text-align: center;
+  padding: 60px 20px;
+  color: #7f8c8d;
+  font-size: 16px;
+  
+  .btn-primary {
+    margin-top: 20px;
+  }
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.clientes-table {
+  width: 100%;
+  border-collapse: collapse;
+  
+  th {
+    background-color: #f8f9fa;
+    padding: 16px 12px;
+    text-align: left;
+    font-weight: 600;
+    color: #2c3e50;
+    border-bottom: 2px solid #e9ecef;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+  
+  td {
+    padding: 16px 12px;
+    border-bottom: 1px solid #e9ecef;
+    font-size: 14px;
+    vertical-align: middle;
+  }
+  
+  tr:hover {
+    background-color: #f8f9fa;
+  }
+}
+
+.nome-cell {
+  font-weight: 500;
+  color: #2c3e50;
+  min-width: 200px;
+}
+
+.cpf-cell {
+  font-family: 'Courier New', monospace;
+  color: #34495e;
+  min-width: 120px;
+}
+
+.profissao-cell {
+  color: #7f8c8d;
+  min-width: 150px;
+}
+
+.idade-cell {
+  text-align: center;
+  color: #95a5a6;
+  min-width: 80px;
+}
+
+.cidade-cell {
+  color: #7f8c8d;
+  min-width: 120px;
+}
+
+.estado-civil-cell {
+  color: #95a5a6;
+  min-width: 120px;
+}
+
+.actions-cell {
+  min-width: 120px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.btn-view, .btn-edit, .btn-delete {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.btn-view {
+  background-color: #17a2b8;
+  color: white;
+  
+  &:hover {
+    background-color: #138496;
+  }
+}
+
+.btn-edit {
+  background-color: #ffc107;
+  color: #212529;
+  
+  &:hover {
+    background-color: #e0a800;
+  }
+}
+
+.btn-delete {
+  background-color: #dc3545;
+  color: white;
+  
+  &:hover {
+    background-color: #c82333;
+  }
+}
+
+.results-info {
+  padding: 16px 20px;
+  background-color: #f8f9fa;
+  color: #6c757d;
+  font-size: 14px;
+  text-align: center;
+  border-top: 1px solid #e9ecef;
+}
+
+// Responsividade para dispositivos móveis
+@media (max-width: 768px) {
+  .lista-clientes-container {
+    padding: 10px;
+  }
+  
+  .clientes-table {
+    font-size: 12px;
+    
+    th, td {
+      padding: 8px 6px;
+    }
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .btn-view, .btn-edit, .btn-delete {
+    padding: 6px 8px;
+    font-size: 14px;
+  }
+}

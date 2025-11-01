@@ -1,0 +1,98 @@
+<div class="lista-clientes-container">
+  <div class="header-section">
+    <h2>Clientes</h2>
+    <div class="actions-bar">
+      <div class="search-container">
+        <input 
+          type="text" 
+          [(ngModel)]="termoBusca" 
+          (input)="onBuscar()"
+          placeholder="Buscar por nome, CPF, RG, profissão ou cidade..."
+          class="search-input"
+        >
+        <button type="button" (click)="onBuscar()" class="btn-search">
+          🔍 Buscar
+        </button>
+      </div>
+      <button type="button" (click)="novoCliente()" class="btn-primary">
+        ➕ Novo Cliente
+      </button>
+    </div>
+  </div>
+
+  <div class="content-section">
+    <div *ngIf="carregando" class="loading-message">
+      Carregando clientes...
+    </div>
+
+    <div *ngIf="!carregando && clientesFiltrados.length === 0 && termoBusca" class="empty-message">
+      Nenhum cliente encontrado para a busca "{{ termoBusca }}".
+    </div>
+
+    <div *ngIf="!carregando && clientes.length === 0 && !termoBusca" class="empty-message">
+      Nenhum cliente cadastrado ainda.
+      <br>
+      <button type="button" (click)="novoCliente()" class="btn-primary">
+        Cadastrar Primeiro Cliente
+      </button>
+    </div>
+
+    <div *ngIf="!carregando && clientesFiltrados.length > 0" class="table-container">
+      <table class="clientes-table">
+        <thead>
+          <tr>
+            <th>Nome Completo</th>
+            <th>CPF</th>
+            <th>Profissão</th>
+            <th>Idade</th>
+            <th>Cidade/UF</th>
+            <th>Estado Civil</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let cliente of clientesFiltrados">
+            <td class="nome-cell">{{ cliente.nomeCompleto }}</td>
+            <td class="cpf-cell">{{ formatarCPF(cliente.cpf) }}</td>
+            <td class="profissao-cell">{{ cliente.profissao }}</td>
+            <td class="idade-cell">{{ obterIdadeAproximada(cliente.dataNascimento) }} anos</td>
+            <td class="cidade-cell">{{ cliente.cidade }}/{{ cliente.uf }}</td>
+            <td class="estado-civil-cell">{{ cliente.estadoCivil }}</td>
+            <td class="actions-cell">
+              <div class="action-buttons">
+                <button 
+                  type="button" 
+                  (click)="visualizarCliente(cliente.id!)" 
+                  class="btn-view"
+                  title="Visualizar cliente"
+                >
+                  👁️
+                </button>
+                <button 
+                  type="button" 
+                  (click)="editarCliente(cliente.id!)" 
+                  class="btn-edit"
+                  title="Editar cliente"
+                >
+                  ✏️
+                </button>
+                <button 
+                  type="button" 
+                  (click)="excluirCliente(cliente)" 
+                  class="btn-delete"
+                  title="Excluir cliente"
+                >
+                  🗑️
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="!carregando && clientesFiltrados.length > 0" class="results-info">
+      Mostrando {{ clientesFiltrados.length }} de {{ clientes.length }} cliente(s)
+    </div>
+  </div>
+</div>

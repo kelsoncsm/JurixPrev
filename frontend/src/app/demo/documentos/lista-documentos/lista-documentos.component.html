@@ -1,0 +1,243 @@
+<app-card cardTitle="Documentos Jurídicos" [options]="false">
+  <!-- Filtros -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <form [formGroup]="filtroForm" class="row g-3">
+        <!-- Campo de busca -->
+        <div class="col-md-4">
+          <label for="termo" class="form-label">Buscar</label>
+          <input
+            type="text"
+            class="form-control"
+            id="termo"
+            formControlName="termo"
+            placeholder="Digite o título ou conteúdo..."
+          />
+        </div>
+
+        <!-- Tipo de documento -->
+        <div class="col-md-3">
+          <label for="tipoDocumento" class="form-label">Tipo de Documento</label>
+          <select class="form-select" id="tipoDocumento" formControlName="tipoDocumento">
+            <option value="">Todos os tipos</option>
+            <option *ngFor="let tipo of tiposDocumento" [value]="tipo">{{ tipo }}</option>
+          </select>
+        </div>
+
+        <!-- Status -->
+        <div class="col-md-2">
+          <label for="status" class="form-label">Status</label>
+          <select class="form-select" id="status" formControlName="status">
+            <option value="">Todos os status</option>
+            <option *ngFor="let status of statusDocumento" [value]="status">{{ status }}</option>
+          </select>
+        </div>
+
+        <!-- Data início -->
+        <div class="col-md-2">
+          <label for="dataInicio" class="form-label">Data Início</label>
+          <input
+            type="date"
+            class="form-control"
+            id="dataInicio"
+            formControlName="dataInicio"
+          />
+        </div>
+
+        <!-- Data fim -->
+        <div class="col-md-1">
+          <label for="dataFim" class="form-label">Data Fim</label>
+          <input
+            type="date"
+            class="form-control"
+            id="dataFim"
+            formControlName="dataFim"
+          />
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Ações -->
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <button type="button" class="btn btn-primary me-2" (click)="novoDocumento()">
+        <i class="fas fa-plus"></i> Novo Documento
+      </button>
+      <button type="button" class="btn btn-outline-secondary" (click)="limparFiltros()">
+        <i class="fas fa-eraser"></i> Limpar Filtros
+      </button>
+    </div>
+    <div class="col-md-6 text-end">
+      <div class="d-inline-flex align-items-center">
+        <label class="me-2">Itens por página:</label>
+        <select 
+          class="form-select form-select-sm" 
+          style="width: auto;"
+          [value]="itensPorPagina"
+          (change)="onItensPorPaginaChange(+($any($event.target).value))"
+        >
+          <option *ngFor="let opcao of opcoesItensPorPagina" [value]="opcao">{{ opcao }}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="carregando" class="text-center py-4">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Carregando...</span>
+    </div>
+  </div>
+
+  <!-- Tabela de documentos -->
+  <div *ngIf="!carregando" class="table-responsive">
+    <table class="table table-hover">
+      <thead class="table-light">
+        <tr>
+          <th>Título</th>
+          <th>Tipo</th>
+          <th>Status</th>
+          <th>Data Criação</th>
+          <th>Última Edição</th>
+          <th>IA</th>
+          <th class="text-center">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let documento of documentos">
+          <td>
+            <div class="fw-bold">{{ documento.titulo }}</div>
+            <small class="text-muted">{{ documento.tomTexto }}</small>
+          </td>
+          <td>
+            <span [class]="getClasseTipo(documento.tipoDocumento)">
+              {{ documento.tipoDocumento }}
+            </span>
+          </td>
+          <td>
+            <span [class]="getClasseStatus(documento.status)">
+              {{ documento.status }}
+            </span>
+          </td>
+          <td>{{ formatarData(documento.dataCreacao) }}</td>
+          <td>{{ formatarData(documento.dataUltimaEdicao) }}</td>
+          <td>
+            <i 
+              *ngIf="documento.geradoPorIA" 
+              class="fas fa-robot text-primary" 
+              title="Gerado por IA"
+            ></i>
+            <i 
+              *ngIf="!documento.geradoPorIA" 
+              class="fas fa-user text-secondary" 
+              title="Criado manualmente"
+            ></i>
+          </td>
+          <td class="text-center">
+            <div class="btn-group btn-group-sm" role="group">
+              <button
+                type="button"
+                class="btn btn-outline-info"
+                (click)="visualizarDocumento(documento)"
+                title="Visualizar"
+              >
+                <i class="fas fa-eye"></i>
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-primary"
+                (click)="editarDocumento(documento)"
+                title="Editar"
+              >
+                <i class="fas fa-edit"></i>
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-danger"
+                (click)="excluirDocumento(documento)"
+                title="Excluir"
+              >
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Mensagem quando não há documentos -->
+    <div *ngIf="documentos.length === 0" class="text-center py-4">
+      <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+      <h5 class="text-muted">Nenhum documento encontrado</h5>
+      <p class="text-muted">Tente ajustar os filtros ou criar um novo documento.</p>
+    </div>
+  </div>
+
+  <!-- Paginação -->
+  <div *ngIf="resultadoPaginado && resultadoPaginado.paginacao.totalPaginas > 1" class="row mt-4">
+    <div class="col-md-6">
+      <p class="text-muted mb-0">
+        Mostrando {{ (resultadoPaginado.paginacao.pagina - 1) * resultadoPaginado.paginacao.itensPorPagina + 1 }} 
+        a {{ Math.min(resultadoPaginado.paginacao.pagina * resultadoPaginado.paginacao.itensPorPagina, resultadoPaginado.paginacao.totalItens) }} 
+        de {{ resultadoPaginado.paginacao.totalItens }} documentos
+      </p>
+    </div>
+    <div class="col-md-6">
+      <nav aria-label="Navegação de páginas">
+        <ul class="pagination justify-content-end mb-0">
+          <!-- Primeira página -->
+          <li class="page-item" [class.disabled]="resultadoPaginado.paginacao.pagina === 1">
+            <button class="page-link" (click)="onPaginaChange(1)" [disabled]="resultadoPaginado.paginacao.pagina === 1">
+              <i class="fas fa-angle-double-left"></i>
+            </button>
+          </li>
+
+          <!-- Página anterior -->
+          <li class="page-item" [class.disabled]="resultadoPaginado.paginacao.pagina === 1">
+            <button 
+              class="page-link" 
+              (click)="onPaginaChange(resultadoPaginado.paginacao.pagina - 1)"
+              [disabled]="resultadoPaginado.paginacao.pagina === 1"
+            >
+              <i class="fas fa-angle-left"></i>
+            </button>
+          </li>
+
+          <!-- Páginas numeradas -->
+          <li 
+            *ngFor="let pagina of getPaginasArray()" 
+            class="page-item" 
+            [class.active]="pagina === resultadoPaginado.paginacao.pagina"
+          >
+            <button class="page-link" (click)="onPaginaChange(pagina)">
+              {{ pagina }}
+            </button>
+          </li>
+
+          <!-- Próxima página -->
+          <li class="page-item" [class.disabled]="resultadoPaginado.paginacao.pagina === resultadoPaginado.paginacao.totalPaginas">
+            <button 
+              class="page-link" 
+              (click)="onPaginaChange(resultadoPaginado.paginacao.pagina + 1)"
+              [disabled]="resultadoPaginado.paginacao.pagina === resultadoPaginado.paginacao.totalPaginas"
+            >
+              <i class="fas fa-angle-right"></i>
+            </button>
+          </li>
+
+          <!-- Última página -->
+          <li class="page-item" [class.disabled]="resultadoPaginado.paginacao.pagina === resultadoPaginado.paginacao.totalPaginas">
+            <button 
+              class="page-link" 
+              (click)="onPaginaChange(resultadoPaginado.paginacao.totalPaginas)"
+              [disabled]="resultadoPaginado.paginacao.pagina === resultadoPaginado.paginacao.totalPaginas"
+            >
+              <i class="fas fa-angle-double-right"></i>
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</app-card>

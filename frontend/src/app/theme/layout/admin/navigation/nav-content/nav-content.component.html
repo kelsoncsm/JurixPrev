@@ -4,6 +4,8 @@
       @for (items of navigation; track items) {
         @if (items.type === 'group') {
           <app-nav-group [item]="items" />
+        } @else if (items.type === 'item') {
+          <app-nav-item [item]="items" />
         }
       }
     </ul>
@@ -13,8 +15,8 @@
       <p>Please contact us on our email for need any support</p>
       <a href="https://codedthemes.support-hub.io/" target="_blank" class="btn btn-primary btn-sm text-white m-0">Support</a>
     </app-card>
-    <div class="version">
+    <!-- <div class="version">
       <label disabled class="pe-auto">v{{ currentApplicationVersion }}</label>
-    </div>
+    </div> -->
   </div>
 </ng-scrollbar>
