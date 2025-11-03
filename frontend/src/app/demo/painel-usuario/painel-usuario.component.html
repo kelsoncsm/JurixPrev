@@ -1,0 +1,75 @@
+<div class="user-dashboard-container">
+  <h3 class="section-title">Painel do Usuário</h3>
+
+  <div class="dashboard-grid">
+    <!-- Produção do Mês em um único card -->
+    <div class="metric-card production-card">
+      <div class="metric-header">
+        <h5>Produção do Mês</h5>
+        <span class="metric-subtitle">Documentos gerados e trabalhados</span>
+      </div>
+      <ul class="metrics-list">
+        <li>
+          <span class="metric-label">Petições Iniciais</span>
+          <span class="metric-value">{{ contarPorTipo(TipoDocumento.PETICAO_INICIAL) }}</span>
+        </li>
+        <li>
+          <span class="metric-label">Recursos</span>
+          <span class="metric-value">{{ contarPorTipo(TipoDocumento.RECURSO_INOMINADO) + contarPorTipo(TipoDocumento.RECURSO_ADMINISTRATIVO) }}</span>
+        </li>
+        <li>
+          <span class="metric-label">Réplica / Impugnações</span>
+          <span class="metric-value">{{ contarPorTipo(TipoDocumento.REPLICA) + contarPorTipo(TipoDocumento.IMPUGNACAO) }}</span>
+        </li>
+        <li>
+          <span class="metric-label">Requerimentos</span>
+          <span class="metric-value">{{ contarPorTipo(TipoDocumento.REQUERIMENTO_ADMINISTRATIVO) }}</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Economia de Tempo -->
+    <div class="metric-card">
+      <div class="metric-header">
+        <h5>Economia de Tempo</h5>
+        <span class="metric-subtitle">Estimativa baseada em IA</span>
+      </div>
+      <div class="metric-content">
+        <div class="metric-row">
+          <span class="metric-label">Horas economizadas (total)</span>
+          <span class="metric-value">{{ horasTotaisEconomizadas }}</span>
+        </div>
+        <div class="metric-row">
+          <span class="metric-label">Horas médias por documento (IA)</span>
+          <span class="metric-value">{{ horasMediasPorDocumento }}</span>
+        </div>
+        <div class="metric-row">
+          <span class="metric-label">FTE estimado</span>
+          <span class="metric-value">{{ fteEstimado }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Qualidade -->
+    <div class="metric-card">
+      <div class="metric-header">
+        <h5>Qualidade</h5>
+        <span class="metric-subtitle">Indicadores de fluxo</span>
+      </div>
+      <div class="metric-content">
+        <div class="metric-row">
+          <span class="metric-label">Aprovação sem edição</span>
+          <span class="metric-value">{{ percentualAprovacaoSemEdicao }}%</span>
+        </div>
+        <div class="metric-row">
+          <span class="metric-label">Revisão necessária</span>
+          <span class="metric-value">{{ percentualRevisaoNecessaria }}%</span>
+        </div>
+        <div class="metric-row">
+          <span class="metric-label">Retrabalho</span>
+          <span class="metric-value">{{ percentualRetrabalho }}%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

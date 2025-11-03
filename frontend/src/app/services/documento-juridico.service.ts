@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Observable, of, BehaviorSubject } from 'rxjs';
 import { delay, map } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 import {
   DocumentoJuridico,
   TipoDocumento,
@@ -17,60 +19,22 @@ import {
 export class DocumentoJuridicoService {
   private documentos: DocumentoJuridico[] = [];
   private documentosSubject = new BehaviorSubject<DocumentoJuridico[]>([]);
+  private baseUrl = `${environment.apiUrl}/documentos`;
 
-  constructor() {
-    this.inicializarDadosMock();
-  }
-
-  private inicializarDadosMock(): void {
-    // Dados mock para demonstração
-    this.documentos = [
-      {
-        id: '1',
-        tipoDocumento: TipoDocumento.PETICAO_INICIAL,
-        titulo: 'Petição Inicial - Ação de Cobrança',
-        tomTexto: TomTexto.TECNICO,
-        conteudo: 'Conteúdo da petição inicial...',
-        status: StatusDocumento.FINALIZADO,
-        dataCreacao: new Date('2024-01-15'),
-        dataUltimaEdicao: new Date('2024-01-16'),
-        geradoPorIA: true,
-        dadosFormulario: {
-          nomeCliente: 'João Silva',
-          cpfCnpj: '123.456.789-00',
-          valorCausa: 15000
-        }
-      },
-      {
-        id: '2',
-        tipoDocumento: TipoDocumento.RECURSO_INOMINADO,
-        titulo: 'Recurso Inominado - Processo 123456',
-        tomTexto: TomTexto.PERSUASIVO,
-        conteudo: 'Conteúdo do recurso...',
-        status: StatusDocumento.EM_REVISAO,
-        dataCreacao: new Date('2024-01-10'),
-        dataUltimaEdicao: new Date('2024-01-12'),
-        geradoPorIA: false
-      },
-      {
-        id: '3',
-        tipoDocumento: TipoDocumento.PROCURACAO,
-        titulo: 'Procuração Ad Judicia',
-        tomTexto: TomTexto.FORMAL,
-        conteudo: 'Conteúdo da procuração...',
-        status: StatusDocumento.RASCUNHO,
-        dataCreacao: new Date('2024-01-20'),
-        dataUltimaEdicao: new Date('2024-01-20'),
-        geradoPorIA: true
-      }
-    ];
-    this.documentosSubject.next(this.documentos);
-  }
+  constructor(private http: HttpClient) {}
 
   listarDocumentos(filtro?: FiltroDocumento, pagina: number = 1, itensPorPagina: number = 10): Observable<ResultadoPaginado<DocumentoJuridico>> {
-    return of(this.documentos).pipe(
+    return this.http.get<DocumentoJuridico[]>(this.baseUrl).pipe(
       map(docs => {
-        let documentosFiltrados = [...docs];
+        // normalizar datas
+        const normalizados = docs.map(d => ({
+          ...d,
+          dataCreacao: new Date(d.dataCreacao),
+          dataUltimaEdicao: new Date(d.dataUltimaEdicao)
+        }));
+        this.documentos = normalizados;
+        this.documentosSubject.next(this.documentos);
+        let documentosFiltrados = [...normalizados];
 
         // Aplicar filtros
         if (filtro) {
@@ -114,65 +78,67 @@ export class DocumentoJuridicoService {
             totalPaginas
           }
         };
-      }),
-      delay(300) // Simular delay de API
+      })
     );
   }
 
   obterDocumentoPorId(id: string): Observable<DocumentoJuridico | null> {
-    const documento = this.documentos.find(doc => doc.id === id);
-    return of(documento || null).pipe(delay(200));
+    return this.http.get<DocumentoJuridico>(`${this.baseUrl}/${id}`).pipe(
+      map(d => ({
+        ...d,
+        dataCreacao: new Date(d.dataCreacao),
+        dataUltimaEdicao: new Date(d.dataUltimaEdicao)
+      }))
+    );
   }
 
   criarDocumento(documento: Partial<DocumentoJuridico>): Observable<DocumentoJuridico> {
-    const novoDocumento: DocumentoJuridico = {
-      id: this.gerarId(),
+    const payload = {
       tipoDocumento: documento.tipoDocumento!,
       titulo: documento.titulo || 'Novo Documento',
       tomTexto: documento.tomTexto || TomTexto.TECNICO,
       conteudo: documento.conteudo || '',
       status: StatusDocumento.RASCUNHO,
-      dataCreacao: new Date(),
-      dataUltimaEdicao: new Date(),
+      dataCreacao: new Date().toISOString().substring(0, 10),
+      dataUltimaEdicao: new Date().toISOString().substring(0, 10),
       geradoPorIA: false,
-      dadosFormulario: documento.dadosFormulario
+      dadosFormulario: documento.dadosFormulario || null
     };
-
-    this.documentos.push(novoDocumento);
-    this.documentosSubject.next(this.documentos);
-    
-    return of(novoDocumento).pipe(delay(300));
+    return this.http.post<DocumentoJuridico>(this.baseUrl, payload).pipe(
+      map(d => ({
+        ...d,
+        dataCreacao: new Date(d.dataCreacao),
+        dataUltimaEdicao: new Date(d.dataUltimaEdicao)
+      }))
+    );
   }
 
   atualizarDocumento(id: string, documento: Partial<DocumentoJuridico>): Observable<DocumentoJuridico | null> {
-    const index = this.documentos.findIndex(doc => doc.id === id);
-    
-    if (index === -1) {
-      return of(null);
-    }
-
-    this.documentos[index] = {
-      ...this.documentos[index],
-      ...documento,
-      dataUltimaEdicao: new Date()
+    const docAtual = this.documentos.find(doc => doc.id === id);
+    const payload = {
+      tipoDocumento: documento.tipoDocumento ?? docAtual?.tipoDocumento ?? TipoDocumento.PETICAO_INICIAL,
+      titulo: documento.titulo ?? docAtual?.titulo ?? 'Documento',
+      tomTexto: documento.tomTexto ?? docAtual?.tomTexto ?? TomTexto.TECNICO,
+      conteudo: documento.conteudo ?? docAtual?.conteudo ?? '',
+      status: documento.status ?? docAtual?.status ?? StatusDocumento.RASCUNHO,
+      dataCreacao: (docAtual?.dataCreacao || new Date()).toISOString().substring(0, 10),
+      dataUltimaEdicao: new Date().toISOString().substring(0, 10),
+      geradoPorIA: documento.geradoPorIA ?? docAtual?.geradoPorIA ?? false,
+      dadosFormulario: documento.dadosFormulario ?? docAtual?.dadosFormulario ?? null
     };
-
-    this.documentosSubject.next(this.documentos);
-    
-    return of(this.documentos[index]).pipe(delay(300));
+    return this.http.put<DocumentoJuridico>(`${this.baseUrl}/${id}`, payload).pipe(
+      map(d => ({
+        ...d,
+        dataCreacao: new Date(d.dataCreacao),
+        dataUltimaEdicao: new Date(d.dataUltimaEdicao)
+      }))
+    );
   }
 
   excluirDocumento(id: string): Observable<boolean> {
-    const index = this.documentos.findIndex(doc => doc.id === id);
-    
-    if (index === -1) {
-      return of(false);
-    }
-
-    this.documentos.splice(index, 1);
-    this.documentosSubject.next(this.documentos);
-    
-    return of(true).pipe(delay(300));
+    return this.http.delete<{ ok: boolean }>(`${this.baseUrl}/${id}`).pipe(
+      map(res => res.ok)
+    );
   }
 
   gerarDocumentoComIA(tipoDocumento: TipoDocumento, tomTexto: TomTexto, dadosFormulario: DadosFormulario): Observable<string> {

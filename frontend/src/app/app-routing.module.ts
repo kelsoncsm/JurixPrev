@@ -32,11 +32,8 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        loadComponent: () => import('./demo/dashboard/dash-analytics.component').then((c) => c.DashAnalyticsComponent)
-      },
-      {
-        path: 'analytics',
-        loadComponent: () => import('./demo/dashboard/dash-analytics.component').then((c) => c.DashAnalyticsComponent)
+        redirectTo: 'sample-page',
+        pathMatch: 'full'
       },
       {
         path: 'component',
@@ -57,6 +54,17 @@ const routes: Routes = [
       {
         path: 'sample-page',
         loadComponent: () => import('./demo/other/sample-page/sample-page.component').then((c) => c.SamplePageComponent)
+      },
+      
+    ]
+  },
+  {
+    path: 'painel-usuario',
+    component: AdminComponent,
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./demo/painel-usuario/painel-usuario.component').then((c) => c.PainelUsuarioComponent)
       }
     ]
   },
@@ -110,4 +118,4 @@ const routes: Routes = [
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule]
 })
-export class AppRoutingModule {}
+export class AppRoutingModule { }

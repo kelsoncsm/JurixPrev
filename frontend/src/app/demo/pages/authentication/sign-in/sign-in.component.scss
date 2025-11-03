@@ -1,1 +1,56 @@
-// This file is intentionally left empty to allow customers to add custom CSS if needed.
+// Tema azul específico para a tela de login
+// Fundo escuro inspirado no anexo (navy profundo)
+.auth-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0f172a; // tom semelhante ao screenshot (tailwind slate-900)
+}
+
+.auth-content .card {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+  background-color: #111827; // leve contraste sobre o fundo
+  color: #e5e7eb; // texto claro
+}
+
+.auth-content .card-body {
+  padding: 2rem;
+}
+
+.auth-content .card-body img.img-fluid {
+  max-height: 48px;
+}
+
+.auth-content .card-body h4 {
+  margin-top: 0.25rem;
+}
+
+.auth-content .btn-primary {
+  background-color: #2563eb;
+  border-color: #2563eb;
+}
+
+.auth-content .input-group-text {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #e5e7eb;
+}
+
+// campos de input com alto contraste
+.auth-content .form-control {
+  background-color: #0b1220;
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #e5e7eb;
+
+  &::placeholder {
+    color: #9ca3af;
+  }
+
+  &:focus {
+    background-color: #0b1220;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+  }
+}

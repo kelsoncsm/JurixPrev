@@ -10,6 +10,7 @@ import { NgbDropdownConfig } from '@ng-bootstrap/ng-bootstrap';
 import { SharedModule } from 'src/app/theme/shared/shared.module';
 import { ChatUserListComponent } from './chat-user-list/chat-user-list.component';
 import { ChatMsgComponent } from './chat-msg/chat-msg.component';
+import { BrandingService } from 'src/app/services/branding.service';
 
 @Component({
   selector: 'app-nav-right',
@@ -33,6 +34,7 @@ export class NavRightComponent {
   visibleUserList: boolean;
   chatMessage: boolean;
   friendId!: number;
+  logoUrl$ = inject(BrandingService).logoUrl$;
   
   // inject router
   private router = inject(Router);

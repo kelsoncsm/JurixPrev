@@ -83,7 +83,7 @@
   <li>
     <div class="dropdown drp-user" ngbDropdown placement="auto">
       <a href="javascript:" ngbDropdownToggle>
-        <img src="assets/images/user/avatar-1.jpg" class="img-radius wid-40" alt="User-Profile-Image" />
+        <img [src]="(logoUrl$ | async) || 'assets/images/user/avatar-1.jpg'" class="img-radius wid-40" alt="Logo do Cliente" />
       </a>
       <div class="dropdown-menu dropdown-menu-end profile-notification" ngbDropdownMenu>
     

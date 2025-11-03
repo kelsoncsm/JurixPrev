@@ -1,0 +1,123 @@
+.painel-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.section {
+  .section-title {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 12px;
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+
+  @media (max-width: 992px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 576px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card.block {
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.metrics-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.metrics-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px dashed #e9ecef;
+}
+
+.metrics-list li:last-child {
+  border-bottom: none;
+}
+
+.metrics-list .label {
+  font-size: 14px;
+  color: #6c757d;
+}
+
+.metrics-list .value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #34495e;
+}
+
+.card.metric {
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+
+  .label {
+    font-size: 13px;
+    color: #6c757d;
+    margin-bottom: 8px;
+  }
+  .value {
+    font-size: 26px;
+    font-weight: 700;
+    color: #34495e;
+  }
+}
+
+.quality .card {
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+
+  .label {
+    font-size: 13px;
+    color: #6c757d;
+    margin-bottom: 8px;
+  }
+  .value {
+    font-size: 22px;
+    font-weight: 700;
+    color: #34495e;
+    margin-bottom: 10px;
+  }
+
+  .progress {
+    height: 8px;
+    background: #f1f3f5;
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .bar {
+    height: 100%;
+    transition: width 0.4s ease;
+  }
+  .bar-success {
+    background: #2ecc71;
+  }
+  .bar-warning {
+    background: #f1c40f;
+  }
+  .bar-danger {
+    background: #e74c3c;
+  }
+}

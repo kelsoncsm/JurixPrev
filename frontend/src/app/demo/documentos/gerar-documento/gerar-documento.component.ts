@@ -254,6 +254,107 @@ export class GerarDocumentoComponent implements OnInit, OnDestroy {
     return titulo;
   }
 
+  // Exportação: Word (.doc) via HTML
+  baixarComoWord(): void {
+    const titulo = (this.conteudoForm.value.titulo || 'Documento').toString().trim() || 'Documento';
+    const conteudo = (this.conteudoForm.value.conteudo || this.conteudoGerado || '').toString();
+    const html = this.montarHTMLDocumento(titulo, conteudo);
+    const blob = new Blob([html], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${this.sanitizarNomeArquivo(titulo)}.doc`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // Exportação: PDF usando janela de impressão do navegador
+  baixarComoPDF(): void {
+    const titulo = (this.conteudoForm.value.titulo || 'Documento').toString().trim() || 'Documento';
+    const conteudo = (this.conteudoForm.value.conteudo || this.conteudoGerado || '').toString();
+    const html = this.montarHTMLDocumento(titulo, conteudo, true);
+    const win = window.open('', '_blank');
+    if (!win) {
+      alert('Não foi possível abrir a janela de impressão. Verifique o bloqueio de pop-ups.');
+      return;
+    }
+    win.document.open();
+    win.document.write(html);
+    win.document.close();
+    win.focus();
+    setTimeout(() => {
+      try { win.print(); } catch {}
+    }, 300);
+  }
+
+  private montarHTMLDocumento(titulo: string, conteudo: string, modoImpressao: boolean = false): string {
+    const cliente = this.dadosForm.value || {} as DadosFormulario;
+    const tipo = this.tipoForm.value?.tipoDocumento || '';
+    const tom = this.tipoForm.value?.tomTexto || '';
+    const corpoHtml = this.formatarConteudoParaHTML(conteudo);
+    const estilos = `
+      <style>
+        body { font-family: Arial, Helvetica, sans-serif; line-height: 1.5; color: #000; }
+        .doc-container { max-width: 800px; margin: 0 auto; padding: 24px; }
+        .doc-header { border-bottom: 2px solid #333; margin-bottom: 16px; padding-bottom: 8px; }
+        .doc-meta { font-size: 12px; color: #555; margin-top: 4px; }
+        .doc-title { font-size: 22px; font-weight: bold; margin: 16px 0; }
+        .doc-content { font-size: 14px; white-space: normal; }
+        .doc-content p { margin: 0 0 12px; }
+        .doc-content br { line-height: 1.2; }
+        ${modoImpressao ? '@page { margin: 20mm; }' : ''}
+      </style>
+    `;
+    const cabecalho = `
+      <div class="doc-header">
+        <div><strong>Tipo:</strong> ${this.escapeHtml(tipo)} | <strong>Tom:</strong> ${this.escapeHtml(tom)}</div>
+        <div class="doc-meta">
+          <div><strong>Cliente:</strong> ${this.escapeHtml(cliente?.nomeCliente || '')}</div>
+          ${cliente?.cpfCnpj ? `<div><strong>CPF/CNPJ:</strong> ${this.escapeHtml(cliente.cpfCnpj)}</div>` : ''}
+          ${cliente?.email ? `<div><strong>E-mail:</strong> ${this.escapeHtml(cliente.email)}</div>` : ''}
+          ${cliente?.numeroProcesso ? `<div><strong>Processo:</strong> ${this.escapeHtml(cliente.numeroProcesso)}</div>` : ''}
+        </div>
+      </div>
+    `;
+    return `<!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8" />
+          <title>${this.escapeHtml(titulo)}</title>
+          ${estilos}
+        </head>
+        <body>
+          <div class="doc-container">
+            ${cabecalho}
+            <div class="doc-title">${this.escapeHtml(titulo)}</div>
+            <div class="doc-content">${corpoHtml}</div>
+          </div>
+        </body>
+      </html>`;
+  }
+
+  private formatarConteudoParaHTML(texto: string): string {
+    const linhas = texto.split(/\r?\n/).map(l => this.escapeHtml(l));
+    const blocos = linhas.map(l => l.trim().length ? `<p>${l}</p>` : '<br>');
+    return blocos.join('');
+  }
+
+  private escapeHtml(valor: string): string {
+    return (valor || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/\"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  private sanitizarNomeArquivo(nome: string): string {
+    return nome
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-zA-Z0-9-_ ]/g, '')
+      .replace(/\s+/g, '-');
+  }
+
   salvarDocumento(): void {
     if (!this.validarTodosFormularios()) {
       alert('Por favor, preencha todos os campos obrigatórios.');
@@ -305,28 +406,27 @@ export class GerarDocumentoComponent implements OnInit, OnDestroy {
   }
 
   cancelar(): void {
-    console.log('Método cancelar() chamado');
-    const confirmacao = confirm('Tem certeza que deseja cancelar? Todas as alterações serão perdidas.');
-    console.log('Resultado da confirmação:', confirmacao);
-    
-    if (confirmacao === true) {
-      console.log('Navegando para /documentos');
-      // Tentativa 1: Navegação Angular padrão
-      this.router.navigate(['/documentos']).then(success => {
-        console.log('Navegação Angular bem-sucedida:', success);
+    const houveAlteracoes = (this.tipoForm?.dirty === true) || (this.dadosForm?.dirty === true) || (this.conteudoForm?.dirty === true);
+
+    if (houveAlteracoes) {
+      const confirmacao = confirm('Você possui alterações não salvas. Sair pode causar perda de dados. Deseja continuar?');
+      if (!confirmacao) {
+        return;
+      }
+    }
+
+    this.router.navigate(['/documentos']).then(
+      (success) => {
         if (!success) {
-          console.log('Navegação Angular falhou, tentando window.location');
-          // Tentativa 2: Usando window.location como fallback
           window.location.href = '/documentos';
         }
-      }).catch(error => {
-        console.error('Erro na navegação Angular:', error);
-        // Tentativa 3: Forçar recarga da página na rota correta
+      },
+      () => {
         window.location.href = '/documentos';
-      });
-    } else {
-      console.log('Cancelamento cancelado pelo usuário');
-    }
+      }
+    ).catch(() => {
+      window.location.href = '/documentos';
+    });
   }
 
   // Getters para facilitar o acesso aos controles dos formulários

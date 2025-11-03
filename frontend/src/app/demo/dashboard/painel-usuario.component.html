@@ -1,0 +1,79 @@
+<app-card cardTitle="Painel do Usuário" [options]="false">
+  <div *ngIf="carregando" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Carregando...</span>
+    </div>
+  </div>
+
+  <div *ngIf="!carregando" class="painel-container">
+    <!-- Produção do Mês -->
+    <div class="section">
+      <h5 class="section-title">Produção do Mês</h5>
+      <div class="grid">
+        <div class="card metric"> 
+          <div class="label">Petições Iniciais</div>
+          <div class="value">{{ prodPeticoesIniciais }}</div>
+        </div>
+        <div class="card metric">
+          <div class="label">Recursos</div>
+          <div class="value">{{ prodRecursos }}</div>
+        </div>
+        <div class="card metric">
+          <div class="label">Réplicas / Impugnações</div>
+          <div class="value">{{ prodReplicasImpugnacoes }}</div>
+        </div>
+        <div class="card metric">
+          <div class="label">Requerimentos</div>
+          <div class="value">{{ prodRequerimentos }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Economia de Tempo -->
+    <div class="section">
+      <h5 class="section-title">Economia de Tempo</h5>
+      <div class="grid">
+        <div class="card metric">
+          <div class="label">Total no mês (horas)</div>
+          <div class="value">{{ economiaTotalHoras | number:'1.0-2' }}</div>
+        </div>
+        <div class="card metric">
+          <div class="label">Média por peça (horas)</div>
+          <div class="value">{{ economiaMediaPorPecaHoras | number:'1.0-2' }}</div>
+        </div>
+        <div class="card metric">
+          <div class="label">Equivalente a estagiários (FTE)</div>
+          <div class="value">{{ economiaFTE | number:'1.0-2' }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Qualidade -->
+    <div class="section">
+      <h5 class="section-title">Qualidade</h5>
+      <div class="grid quality">
+        <div class="card">
+          <div class="label">Peças aprovadas sem edição</div>
+          <div class="value">{{ percAprovadasSemEdicao | number:'1.0-0' }}%</div>
+          <div class="progress">
+            <div class="bar bar-success" [style.width.%]="percAprovadasSemEdicao"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="label">Revisões necessárias</div>
+          <div class="value">{{ percRevisoesNecessarias | number:'1.0-0' }}%</div>
+          <div class="progress">
+            <div class="bar bar-warning" [style.width.%]="percRevisoesNecessarias"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="label">Retrabalho</div>
+          <div class="value">{{ percRetrabalho | number:'1.0-0' }}%</div>
+          <div class="progress">
+            <div class="bar bar-danger" [style.width.%]="percRetrabalho"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</app-card>

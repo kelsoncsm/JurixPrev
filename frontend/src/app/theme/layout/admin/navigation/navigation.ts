@@ -20,11 +20,11 @@ export interface NavigationItem {
 
 export const NavigationItems: NavigationItem[] = [
   {
-    id: 'dashboard',
-    title: 'Dashboard',
+    id: 'painel-usuario',
+    title: 'Painel de Usuário',
     type: 'item',
     icon: 'feather icon-home',
-    url: '/dashboard'
+    url: '/painel-usuario'
   },
   {
     id: 'documentos',

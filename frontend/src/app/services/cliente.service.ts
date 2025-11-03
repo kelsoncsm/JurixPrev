@@ -1,5 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
 import { Cliente, DadosFormularioCliente, EstadoCivil } from '../models/cliente.model';
 
 @Injectable({
@@ -9,110 +12,63 @@ export class ClienteService {
   private clientes: Cliente[] = [];
   private clientesSubject = new BehaviorSubject<Cliente[]>([]);
   public clientes$ = this.clientesSubject.asObservable();
+  private baseUrl = environment.apiUrl;
 
-  constructor() {
-    this.carregarClientesDoLocalStorage();
+  constructor(private http: HttpClient) {
+    this.fetchClientes();
   }
-
-  private carregarClientesDoLocalStorage(): void {
-    const clientesSalvos = localStorage.getItem('clientes');
-    if (clientesSalvos) {
-      this.clientes = JSON.parse(clientesSalvos).map((cliente: any) => ({
-        ...cliente,
-        dataNascimento: new Date(cliente.dataNascimento),
-        dataCriacao: cliente.dataCriacao ? new Date(cliente.dataCriacao) : undefined,
-        dataAtualizacao: cliente.dataAtualizacao ? new Date(cliente.dataAtualizacao) : undefined
-      }));
-      this.clientesSubject.next(this.clientes);
-    }
-  }
-
-  private salvarClientesNoLocalStorage(): void {
-    localStorage.setItem('clientes', JSON.stringify(this.clientes));
+  private fetchClientes(): void {
+    this.http.get<Cliente[]>(`${this.baseUrl}/clientes`).subscribe({
+      next: (clientes) => {
+        // Normaliza datas
+        this.clientes = clientes.map((c: any) => ({
+          ...c,
+          dataNascimento: c.dataNascimento ? new Date(c.dataNascimento) : undefined,
+        }));
+        this.clientesSubject.next(this.clientes);
+      },
+      error: (err) => {
+        console.error('Erro ao buscar clientes no backend:', err);
+      }
+    });
   }
 
   obterTodosClientes(): Observable<Cliente[]> {
+    // Atualiza cache e retorna observable
+    this.fetchClientes();
     return this.clientes$;
   }
 
-  obterClientePorId(id: string): Cliente | undefined {
-    return this.clientes.find(cliente => cliente.id === id);
+  obterClientePorId(id: string): Observable<Cliente> {
+    return this.http.get<Cliente>(`${this.baseUrl}/clientes/${id}`);
   }
 
-  criarCliente(dadosFormulario: DadosFormularioCliente): Cliente {
-    const novoCliente: Cliente = {
-      id: this.gerarId(),
-      nomeCompleto: dadosFormulario.nomeCompleto,
-      estadoCivil: dadosFormulario.estadoCivil,
-      profissao: dadosFormulario.profissao,
-      cpf: dadosFormulario.cpf,
-      rg: dadosFormulario.rg,
-      orgaoExpedidor: dadosFormulario.orgaoExpedidor,
-      nit: dadosFormulario.nit,
-      numeroBeneficio: dadosFormulario.numeroBeneficio,
-      dataNascimento: new Date(dadosFormulario.dataNascimento),
-      nomeMae: dadosFormulario.nomeMae,
-      nomePai: dadosFormulario.nomePai,
-      endereco: dadosFormulario.endereco,
-      bairro: dadosFormulario.bairro,
-      cidade: dadosFormulario.cidade,
-      uf: dadosFormulario.uf,
-      dataCriacao: new Date(),
-      dataAtualizacao: new Date()
-    };
-
-    this.clientes.push(novoCliente);
-    this.salvarClientesNoLocalStorage();
-    this.clientesSubject.next(this.clientes);
-    
-    return novoCliente;
+  obterClientePorEmail(email: string): Observable<Cliente | undefined> {
+    const alvo = email.toLowerCase();
+    return this.http.get<Cliente[]>(`${this.baseUrl}/clientes`).pipe(
+      map((lista) => lista.find((c) => (c.email || '').toLowerCase() === alvo))
+    );
   }
 
-  atualizarCliente(id: string, dadosFormulario: DadosFormularioCliente): Cliente | null {
-    const indice = this.clientes.findIndex(cliente => cliente.id === id);
-    
-    if (indice === -1) {
-      return null;
+  criarCliente(dadosFormulario: DadosFormularioCliente): Observable<Cliente> {
+    // Converte dataNascimento para ISO
+    const payload = { ...dadosFormulario } as any;
+    if (payload.dataNascimento) {
+      payload.dataNascimento = new Date(payload.dataNascimento).toISOString().split('T')[0];
     }
-
-    const clienteAtualizado: Cliente = {
-      ...this.clientes[indice],
-      nomeCompleto: dadosFormulario.nomeCompleto,
-      estadoCivil: dadosFormulario.estadoCivil,
-      profissao: dadosFormulario.profissao,
-      cpf: dadosFormulario.cpf,
-      rg: dadosFormulario.rg,
-      orgaoExpedidor: dadosFormulario.orgaoExpedidor,
-      nit: dadosFormulario.nit,
-      numeroBeneficio: dadosFormulario.numeroBeneficio,
-      dataNascimento: new Date(dadosFormulario.dataNascimento),
-      nomeMae: dadosFormulario.nomeMae,
-      nomePai: dadosFormulario.nomePai,
-      endereco: dadosFormulario.endereco,
-      bairro: dadosFormulario.bairro,
-      cidade: dadosFormulario.cidade,
-      uf: dadosFormulario.uf,
-      dataAtualizacao: new Date()
-    };
-
-    this.clientes[indice] = clienteAtualizado;
-    this.salvarClientesNoLocalStorage();
-    this.clientesSubject.next(this.clientes);
-    
-    return clienteAtualizado;
+    return this.http.post<Cliente>(`${this.baseUrl}/clientes`, payload);
   }
 
-  excluirCliente(id: string): boolean {
-    const indiceInicial = this.clientes.length;
-    this.clientes = this.clientes.filter(cliente => cliente.id !== id);
-    
-    if (this.clientes.length < indiceInicial) {
-      this.salvarClientesNoLocalStorage();
-      this.clientesSubject.next(this.clientes);
-      return true;
+  atualizarCliente(id: string, dadosFormulario: DadosFormularioCliente): Observable<Cliente> {
+    const payload = { ...dadosFormulario } as any;
+    if (payload.dataNascimento) {
+      payload.dataNascimento = new Date(payload.dataNascimento).toISOString().split('T')[0];
     }
-    
-    return false;
+    return this.http.put<Cliente>(`${this.baseUrl}/clientes/${id}`, payload);
+  }
+
+  excluirCliente(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/clientes/${id}`);
   }
 
   buscarClientes(termo: string): Cliente[] {
@@ -123,6 +79,7 @@ export class ClienteService {
     const termoBusca = termo.toLowerCase();
     return this.clientes.filter(cliente =>
       cliente.nomeCompleto.toLowerCase().includes(termoBusca) ||
+      (cliente.email && cliente.email.toLowerCase().includes(termoBusca)) ||
       cliente.cpf.includes(termoBusca) ||
       cliente.rg.includes(termoBusca) ||
       cliente.profissao.toLowerCase().includes(termoBusca) ||
@@ -171,6 +128,7 @@ export class ClienteService {
   }
 
   private gerarId(): string {
+    // Mantido para compatibilizar com possíveis usos locais
     return Date.now().toString() + Math.random().toString(36).substr(2, 9);
   }
 }

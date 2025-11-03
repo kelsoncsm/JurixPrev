@@ -5,6 +5,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Cliente, DadosFormularioCliente, EstadoCivil } from '../../models/cliente.model';
 import { ClienteService } from '../../services/cliente.service';
+import { BrandingService } from '../../services/branding.service';
 
 @Component({
   selector: 'app-cadastrar-cliente',
@@ -21,12 +22,14 @@ export class CadastrarClienteComponent implements OnInit, OnDestroy {
   carregando: boolean = false;
   salvando: boolean = false;
   estadosCivis = Object.values(EstadoCivil);
+  logoPreview: string | null = null;
   
   private subscription: Subscription = new Subscription();
 
   constructor(
     private fb: FormBuilder,
     private clienteService: ClienteService,
+    private branding: BrandingService,
     private router: Router,
     private route: ActivatedRoute
   ) {
@@ -44,6 +47,7 @@ export class CadastrarClienteComponent implements OnInit, OnDestroy {
   private criarFormulario(): FormGroup {
     return this.fb.group({
       nomeCompleto: ['', [Validators.required, Validators.minLength(2)]],
+      email: ['', [Validators.required, Validators.email]],
       estadoCivil: ['', Validators.required],
       profissao: ['', [Validators.required, Validators.minLength(2)]],
       cpf: ['', [Validators.required, this.validadorCPF.bind(this)]],
@@ -57,7 +61,8 @@ export class CadastrarClienteComponent implements OnInit, OnDestroy {
       endereco: ['', [Validators.required, Validators.minLength(5)]],
       bairro: ['', [Validators.required, Validators.minLength(2)]],
       cidade: ['', [Validators.required, Validators.minLength(2)]],
-      uf: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(2)]]
+      uf: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(2)]],
+      logoUrl: ['']
     });
   }
 
@@ -84,17 +89,19 @@ export class CadastrarClienteComponent implements OnInit, OnDestroy {
 
   private carregarCliente(): void {
     if (!this.clienteId) return;
-
     this.carregando = true;
-    const cliente = this.clienteService.obterClientePorId(this.clienteId);
-
-    if (cliente) {
-      this.preencherFormulario(cliente);
-      this.carregando = false;
-    } else {
-      alert('Cliente não encontrado!');
-      this.router.navigate(['/clientes']);
-    }
+    const sub = this.clienteService.obterClientePorId(this.clienteId).subscribe({
+      next: (cliente) => {
+        this.preencherFormulario(cliente);
+        this.carregando = false;
+      },
+      error: () => {
+        alert('Cliente não encontrado!');
+        this.router.navigate(['/clientes']);
+        this.carregando = false;
+      }
+    });
+    this.subscription.add(sub);
   }
 
   private preencherFormulario(cliente: Cliente): void {
@@ -102,6 +109,7 @@ export class CadastrarClienteComponent implements OnInit, OnDestroy {
     
     this.formularioCliente.patchValue({
       nomeCompleto: cliente.nomeCompleto,
+      email: cliente.email,
       estadoCivil: cliente.estadoCivil,
       profissao: cliente.profissao,
       cpf: cliente.cpf,
@@ -115,8 +123,14 @@ export class CadastrarClienteComponent implements OnInit, OnDestroy {
       endereco: cliente.endereco,
       bairro: cliente.bairro,
       cidade: cliente.cidade,
-      uf: cliente.uf.toUpperCase()
+      uf: cliente.uf.toUpperCase(),
+      logoUrl: cliente.logoUrl || ''
     });
+
+    this.logoPreview = cliente.logoUrl || null;
+    if (cliente.logoUrl && cliente.logoUrl.trim()) {
+      this.branding.setLogo(cliente.logoUrl);
+    }
   }
 
   private formatarDataParaInput(data: Date): string {
@@ -171,23 +185,31 @@ export class CadastrarClienteComponent implements OnInit, OnDestroy {
       
       try {
         if (this.modoEdicao && this.clienteId) {
-          const clienteAtualizado = this.clienteService.atualizarCliente(this.clienteId, dadosFormulario);
-          
-          if (clienteAtualizado) {
-            alert('Cliente atualizado com sucesso!');
-            this.router.navigate(['/clientes']);
-          } else {
-            alert('Erro ao atualizar cliente. Tente novamente.');
-          }
+          const sub = this.clienteService.atualizarCliente(this.clienteId, dadosFormulario).subscribe({
+            next: () => {
+              this.branding.setLogo(dadosFormulario.logoUrl);
+              alert('Cliente atualizado com sucesso!');
+              this.router.navigate(['/clientes']);
+            },
+            error: (err) => {
+              console.error('Erro ao atualizar cliente:', err);
+              alert('Erro ao atualizar cliente. Tente novamente.');
+            }
+          });
+          this.subscription.add(sub);
         } else {
-          const novoCliente = this.clienteService.criarCliente(dadosFormulario);
-          
-          if (novoCliente) {
-            alert('Cliente cadastrado com sucesso!');
-            this.router.navigate(['/clientes']);
-          } else {
-            alert('Erro ao cadastrar cliente. Tente novamente.');
-          }
+          const sub = this.clienteService.criarCliente(dadosFormulario).subscribe({
+            next: () => {
+              this.branding.setLogo(dadosFormulario.logoUrl);
+              alert('Cliente cadastrado com sucesso!');
+              this.router.navigate(['/clientes']);
+            },
+            error: (err) => {
+              console.error('Erro ao cadastrar cliente:', err);
+              alert('Erro ao cadastrar cliente. Tente novamente.');
+            }
+          });
+          this.subscription.add(sub);
         }
       } catch (erro) {
         console.error('Erro ao salvar cliente:', erro);
@@ -208,35 +230,24 @@ export class CadastrarClienteComponent implements OnInit, OnDestroy {
   }
 
   cancelar(): void {
-    console.log('Método cancelar chamado');
-    
-    const confirmacao = confirm('Tem certeza que deseja cancelar? Todas as alterações serão perdidas.');
-    console.log('Confirmação do usuário:', confirmacao);
-    
-    if (confirmacao === true) {
-      console.log('Usuário confirmou cancelamento, navegando para /clientes');
-      
-      try {
-        // Tentativa 1: Navegação Angular padrão
-        this.router.navigate(['/clientes']).then(
-          (sucesso) => {
-            console.log('Navegação Angular bem-sucedida:', sucesso);
-          },
-          (erro) => {
-            console.error('Erro na navegação Angular:', erro);
-            // Fallback: usar window.location
-            console.log('Usando fallback window.location.href');
-            window.location.href = '/clientes';
-          }
-        );
-      } catch (erro) {
-        console.error('Erro ao tentar navegar:', erro);
-        // Fallback final
-        console.log('Usando fallback final window.location.href');
-        window.location.href = '/clientes';
+    const houveAlteracoes = this.formularioCliente?.dirty === true;
+
+    if (houveAlteracoes) {
+      const confirmacao = confirm('Você possui alterações não salvas. Sair pode causar perda de dados. Deseja continuar?');
+      if (!confirmacao) {
+        return;
       }
-    } else {
-      console.log('Usuário cancelou a operação');
+    }
+
+    try {
+      this.router.navigate(['/clientes']).then(
+        () => {},
+        () => {
+          window.location.href = '/clientes';
+        }
+      );
+    } catch {
+      window.location.href = '/clientes';
     }
   }
 
@@ -246,6 +257,9 @@ export class CadastrarClienteComponent implements OnInit, OnDestroy {
     if (controle?.errors && controle.touched) {
       if (controle.errors['required']) {
         return 'Este campo é obrigatório';
+      }
+      if (controle.errors['email']) {
+        return 'E-mail inválido';
       }
       if (controle.errors['minlength']) {
         return `Mínimo de ${controle.errors['minlength'].requiredLength} caracteres`;
@@ -264,5 +278,26 @@ export class CadastrarClienteComponent implements OnInit, OnDestroy {
   campoTemErro(campo: string): boolean {
     const controle = this.formularioCliente.get(campo);
     return !!(controle?.errors && controle.touched);
+  }
+
+  onLogoSelected(event: any): void {
+    const file: File | undefined = event?.target?.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      this.logoPreview = dataUrl;
+      this.formularioCliente.patchValue({ logoUrl: dataUrl });
+    };
+    reader.readAsDataURL(file);
+  }
+
+  removerLogo(): void {
+    this.logoPreview = null;
+    this.formularioCliente.patchValue({ logoUrl: '' });
+    this.branding.resetLogo();
   }
 }

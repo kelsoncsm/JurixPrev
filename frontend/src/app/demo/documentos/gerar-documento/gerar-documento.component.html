@@ -287,16 +287,36 @@
         <div class="col-12">
           <div class="d-flex justify-content-between align-items-center">
             <h5 class="mb-0"><i class="fas fa-edit"></i> Conteúdo do Documento</h5>
-            <button 
-              type="button" 
-              class="btn btn-success"
-              (click)="gerarComIA()"
-              [disabled]="gerandoIA || !tipoForm.valid || !dadosForm.valid"
-            >
-              <span *ngIf="gerandoIA" class="spinner-border spinner-border-sm me-2" role="status"></span>
-              <i *ngIf="!gerandoIA" class="fas fa-robot me-2"></i>
-              {{ gerandoIA ? 'Gerando...' : 'IA Jurídica' }}
-            </button>
+            <div class="d-flex align-items-center">
+              <button 
+                type="button" 
+                class="btn btn-outline-secondary me-2"
+                (click)="baixarComoWord()"
+                [disabled]="!conteudoForm.value.conteudo"
+              >
+                <i class="fas fa-file-word me-1"></i>
+                Baixar Word
+              </button>
+              <button 
+                type="button" 
+                class="btn btn-outline-secondary me-3"
+                (click)="baixarComoPDF()"
+                [disabled]="!conteudoForm.value.conteudo"
+              >
+                <i class="fas fa-file-pdf me-1"></i>
+                Baixar PDF
+              </button>
+              <button 
+                type="button" 
+                class="btn btn-success"
+                (click)="gerarComIA()"
+                [disabled]="gerandoIA || !tipoForm.valid || !dadosForm.valid"
+              >
+                <span *ngIf="gerandoIA" class="spinner-border spinner-border-sm me-2" role="status"></span>
+                <i *ngIf="!gerandoIA" class="fas fa-robot me-2"></i>
+                {{ gerandoIA ? 'Gerando...' : 'IA Jurídica' }}
+              </button>
+            </div>
           </div>
           <small class="text-muted">
             Use a IA Jurídica para gerar automaticamente o conteúdo baseado nos dados informados.

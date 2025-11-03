@@ -31,6 +31,22 @@
       </div>
 
       <div class="form-row">
+        <div class="form-group full-width">
+          <label for="email">E-mail *</label>
+          <input 
+            type="email" 
+            id="email" 
+            formControlName="email"
+            placeholder="exemplo@dominio.com"
+            [class.error]="campoTemErro('email')"
+          >
+          <div class="error-message" *ngIf="campoTemErro('email')">
+            {{ obterMensagemErro('email') }}
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
         <div class="form-group">
           <label for="estadoCivil">Estado Civil *</label>
           <select 
@@ -249,6 +265,39 @@
           <div class="error-message" *ngIf="campoTemErro('uf')">
             {{ obterMensagemErro('uf') }}
           </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3>Logo do Cliente</h3>
+      <div class="form-row">
+        <div class="form-group full-width">
+          <label for="logoCliente">Upload de Logo</label>
+          <input 
+            type="file" 
+            id="logoCliente" 
+            accept="image/*"
+            (change)="onLogoSelected($event)"
+            [disabled]="modoVisualizacao"
+          >
+        </div>
+      </div>
+
+      <div class="form-row" *ngIf="logoPreview || formularioCliente.get('logoUrl')?.value">
+        <div class="form-group full-width">
+          <label>Pré-visualização</label>
+          <img 
+            [src]="logoPreview || formularioCliente.get('logoUrl')?.value" 
+            alt="Logo do Cliente" 
+            style="max-height: 80px; max-width: 100%; object-fit: contain; border: 1px solid #ddd; padding: 6px; background: #fff;"
+          />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <button type="button" class="btn-secondary" (click)="removerLogo()" [disabled]="modoVisualizacao">Remover Logo</button>
         </div>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { SharedModule } from 'src/app/theme/shared/shared.module';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Cliente } from '../../models/cliente.model';
@@ -9,7 +10,7 @@ import { ClienteService } from '../../services/cliente.service';
 @Component({
   selector: 'app-lista-clientes',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [SharedModule],
   templateUrl: './lista-clientes.component.html',
   styleUrls: ['./lista-clientes.component.scss']
 })
@@ -79,14 +80,19 @@ export class ListaClientesComponent implements OnInit, OnDestroy {
     const confirmacao = confirm(`Tem certeza que deseja excluir o cliente "${cliente.nomeCompleto}"?`);
     
     if (confirmacao && cliente.id) {
-      const sucesso = this.clienteService.excluirCliente(cliente.id);
-      
-      if (sucesso) {
-        console.log('Cliente excluído com sucesso');
-        // A lista será atualizada automaticamente através do Observable
-      } else {
-        alert('Erro ao excluir cliente. Tente novamente.');
-      }
+      this.carregando = true;
+      const sub = this.clienteService.excluirCliente(cliente.id).subscribe({
+        next: () => {
+          console.log('Cliente excluído com sucesso');
+          this.carregarClientes();
+        },
+        error: (err) => {
+          console.error('Erro ao excluir cliente:', err);
+          alert('Erro ao excluir cliente. Tente novamente.');
+          this.carregando = false;
+        }
+      });
+      this.subscription.add(sub);
     }
   }
 

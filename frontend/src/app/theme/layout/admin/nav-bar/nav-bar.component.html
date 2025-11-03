@@ -3,8 +3,8 @@
   <a href="javascript:" class="header-mobile-collapse" id="mobile-collapse1" (click)="navCollapseMob()">
     <!-- <i class="feather icon-menu"></i> -->
   </a>
-  <a [routerLink]="['/dashboard']" class="b-brand">
-    <img id="main-logo" src="assets/images/juriprev.svg" alt="JuriXPrev Estagiário Digital" class="logo" />
+  <a [routerLink]="['/painel-usuario']" class="b-brand">
+    <img id="main-logo" [src]="(logoUrl$ | async) || 'assets/images/juriprev.svg'" alt="JuriXPrev Estagiário Digital" class="logo" />
     <img src="assets/images/logo-icon.svg" alt="JuriXPrev Icon" class="logo-thumb" />
   </a>
   <a class="mob-toggler" [ngClass]="{ on: this.menuClass }" href="javascript:" (click)="toggleMobOption()">
@@ -22,8 +22,8 @@
     <a href="javascript:" class="header-mobile-collapse" id="mobile-collapse1" (click)="this.NavCollapsedMob.emit()">
       <!-- <i class="feather icon-menu"></i> -->
     </a>
-    <a [routerLink]="['/dashboard']" class="b-brand">
-      <img id="main-logo" src="assets/images/juriprev.svg" alt="JuriXPrev Estagiário Digital" class="logo" />
+    <a [routerLink]="['/painel-usuario']" class="b-brand">
+      <img id="main-logo" [src]="(logoUrl$ | async) || 'assets/images/juriprev.svg'" alt="JuriXPrev Estagiário Digital" class="logo" />
       <img src="assets/images/logo-icon.svg" alt="JuriXPrev Icon" class="logo-thumb" />
     </a>
     <a class="mob-toggler" [ngClass]="{ on: this.menuClass }" href="javascript:" (click)="toggleMobOption()">

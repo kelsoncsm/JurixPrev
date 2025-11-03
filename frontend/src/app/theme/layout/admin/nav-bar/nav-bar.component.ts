@@ -1,11 +1,12 @@
 // angular import
-import { Component, output } from '@angular/core';
+import { Component, output, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 // project import
 import { SharedModule } from 'src/app/theme/shared/shared.module';
 import { NavRightComponent } from './nav-right/nav-right.component';
+import { BrandingService } from 'src/app/services/branding.service';
 
 @Component({
   selector: 'app-nav-bar',
@@ -18,6 +19,7 @@ export class NavBarComponent {
   menuClass: boolean;
   collapseStyle: string;
   windowWidth: number;
+  logoUrl$ = inject(BrandingService).logoUrl$;
 
   NavCollapse = output();
   NavCollapsedMob = output();

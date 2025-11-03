@@ -1,6 +1,7 @@
 export interface Cliente {
   id?: string;
   nomeCompleto: string;
+  email: string;
   estadoCivil: EstadoCivil;
   profissao: string;
   cpf: string;
@@ -15,6 +16,7 @@ export interface Cliente {
   bairro: string;
   cidade: string;
   uf: string;
+  logoUrl?: string;
   dataCriacao?: Date;
   dataAtualizacao?: Date;
 }
@@ -29,6 +31,7 @@ export enum EstadoCivil {
 
 export interface DadosFormularioCliente {
   nomeCompleto: string;
+  email: string;
   estadoCivil: EstadoCivil;
   profissao: string;
   cpf: string;
@@ -43,4 +46,5 @@ export interface DadosFormularioCliente {
   bairro: string;
   cidade: string;
   uf: string;
+  logoUrl?: string;
 }
