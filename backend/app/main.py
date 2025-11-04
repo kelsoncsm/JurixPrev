@@ -4,12 +4,38 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from uuid import UUID
 
-from .database import Base, engine, get_db
+from .database import Base, engine, get_db, SessionLocal
 from . import schemas, crud
 from .auth import create_token, decode_token
 
-# Create tables
+# Create tables if they don't exist and ensure default admin user
 Base.metadata.create_all(bind=engine)
+
+def _ensure_default_admin():
+    try:
+        from .models import Usuario
+        import hashlib
+        db = SessionLocal()
+        try:
+            admin = db.query(Usuario).filter(Usuario.login == "admin").first()
+            if not admin:
+                pwd_hash = hashlib.sha256("admin123".encode("utf-8")).hexdigest()
+                novo = Usuario(
+                    nome="Administrador",
+                    login="admin",
+                    senhaHash=pwd_hash,
+                    perfil="A",
+                    status="A",
+                )
+                db.add(novo)
+                db.commit()
+        finally:
+            db.close()
+    except Exception:
+        # Evita quebrar startup por erro de seed; logs podem ser adicionados conforme necessário
+        pass
+
+_ensure_default_admin()
 
 app = FastAPI(title="JurixPrev API")
 
