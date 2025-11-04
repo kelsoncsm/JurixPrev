@@ -21,7 +21,7 @@ export class ListaClientesComponent implements OnInit, OnDestroy {
   clientesFiltrados: Cliente[] = [];
   termoBusca: string = '';
   carregando: boolean = false;
-  perfil: PerfilUsuario = 'USUARIO';
+  perfil: PerfilUsuario = 'U';
   usuarioId: string | null = null;
   usuarios: Usuario[] = [];
   selectedUsuarioId: string = '';
@@ -38,7 +38,7 @@ export class ListaClientesComponent implements OnInit, OnDestroy {
     this.perfil = this.auth.getPerfil();
     this.usuarioId = this.auth.getUsuarioId();
     this.carregarClientes();
-    if (this.perfil === 'ADMINISTRATIVO') {
+    if (this.perfil === 'A') {
       this.carregarUsuarios();
     }
   }
@@ -80,7 +80,7 @@ export class ListaClientesComponent implements OnInit, OnDestroy {
   aplicarFiltro(): void {
     const termo = this.termoBusca.trim();
     const base = termo ? this.clienteService.buscarClientes(termo) : [...this.clientes];
-    if (this.perfil === 'ADMINISTRATIVO' && this.selectedUsuarioId) {
+    if (this.perfil === 'A' && this.selectedUsuarioId) {
       this.clientesFiltrados = base.filter(c => (c.usuarioId || '') === this.selectedUsuarioId);
     } else {
       this.clientesFiltrados = base;

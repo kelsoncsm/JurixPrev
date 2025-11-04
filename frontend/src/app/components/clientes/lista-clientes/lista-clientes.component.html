@@ -21,8 +21,8 @@
         </div>
 
         <div class="col-md-6 d-flex align-items-end justify-content-end">
-          <!-- Filtro por usuário visível apenas para ADMINISTRATIVO -->
-          <div class="me-3" *ngIf="perfil === 'ADMINISTRATIVO'">
+          <!-- Filtro por usuário visível apenas para Administrador (A) -->
+          <div class="me-3" *ngIf="perfil === 'A'">
             <label for="usuario" class="form-label">Usuário</label>
             <select id="usuario" class="form-select" [(ngModel)]="selectedUsuarioId" (change)="onAlterarUsuario()">
               <option value="">Todos</option>

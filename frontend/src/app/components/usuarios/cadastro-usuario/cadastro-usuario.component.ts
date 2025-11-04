@@ -19,7 +19,8 @@ export class CadastroUsuarioComponent {
     nome: ['', [Validators.required, Validators.minLength(3)]],
     login: ['', [Validators.required, Validators.minLength(3)]],
     senha: ['', [Validators.required, Validators.minLength(6)]],
-    perfil: ['USUARIO', [Validators.required]]
+    perfil: ['U', [Validators.required]],
+    status: ['A', [Validators.required]]
   });
 
   constructor(private fb: FormBuilder, private usuarios: UsuarioService, private router: Router) {}
@@ -30,10 +31,11 @@ export class CadastroUsuarioComponent {
       return;
     }
     this.carregando = true;
-    const { nome, login, senha, perfil } = this.form.getRawValue();
+    const { nome, login, senha, perfil, status } = this.form.getRawValue();
     try {
-      const perfilFinal: 'ADMINISTRATIVO' | 'USUARIO' = (perfil || 'USUARIO').toUpperCase() === 'ADMINISTRATIVO' ? 'ADMINISTRATIVO' : 'USUARIO';
-      await firstValueFrom(this.usuarios.registrarUsuario({ nome: nome!, login: login!, senha: senha!, perfil: perfilFinal }));
+      const perfilFinal: 'A' | 'U' = (perfil || 'U').toUpperCase() === 'A' ? 'A' : 'U';
+      const statusFinal: 'A' | 'I' = (status || 'A').toUpperCase() === 'I' ? 'I' : 'A';
+      await firstValueFrom(this.usuarios.registrarUsuario({ nome: nome!, login: login!, senha: senha!, perfil: perfilFinal, status: statusFinal }));
       alert('Usuário registrado com sucesso!');
       this.router.navigate(['/usuarios']);
     } catch (e: any) {

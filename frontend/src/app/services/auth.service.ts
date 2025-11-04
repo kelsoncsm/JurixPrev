@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-export type PerfilUsuario = 'ADMINISTRATIVO' | 'USUARIO';
+export type PerfilUsuario = 'A' | 'U';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -9,8 +9,8 @@ export class AuthService {
   private usuarioIdKey = 'usuario_id';
 
   getPerfil(): PerfilUsuario {
-    const p = (localStorage.getItem(this.perfilKey) || 'USUARIO').toUpperCase();
-    return (p === 'ADMINISTRATIVO' ? 'ADMINISTRATIVO' : 'USUARIO');
+    const p = (localStorage.getItem(this.perfilKey) || 'U').toUpperCase();
+    return (p === 'A' ? 'A' : 'U');
   }
 
   setPerfil(perfil: PerfilUsuario) {

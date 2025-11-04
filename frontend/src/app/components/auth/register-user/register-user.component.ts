@@ -19,7 +19,7 @@ export class RegisterUserComponent {
     nome: ['', [Validators.required, Validators.minLength(3)]],
     login: ['', [Validators.required, Validators.minLength(3)]],
     senha: ['', [Validators.required, Validators.minLength(6)]],
-    perfil: ['USUARIO', [Validators.required]]
+    perfil: ['U', [Validators.required]]
   });
 
   constructor(private fb: FormBuilder, private usuarios: UsuarioService, private router: Router) {}
@@ -32,7 +32,7 @@ export class RegisterUserComponent {
     this.carregando = true;
     const { nome, login, senha, perfil } = this.form.getRawValue();
     try {
-      const perfilFinal: 'ADMINISTRATIVO' | 'USUARIO' = (perfil || 'USUARIO').toUpperCase() === 'ADMINISTRATIVO' ? 'ADMINISTRATIVO' : 'USUARIO';
+      const perfilFinal: 'A' | 'U' = (perfil || 'U').toUpperCase() === 'A' ? 'A' : 'U';
       await firstValueFrom(this.usuarios.registrarUsuario({ nome: nome!, login: login!, senha: senha!, perfil: perfilFinal }));
       alert('Usuário registrado com sucesso!');
       this.router.navigate(['/login']);

@@ -53,8 +53,9 @@ def list_usuarios(db: Session):
 def create_usuario(db: Session, payload: schemas.UsuarioCreate):
     # hashing simples para demo; em produção, usar bcrypt/argon2
     senha_hash = hashlib.sha256(payload.senha.encode('utf-8')).hexdigest()
-    perfil = getattr(payload, 'perfil', 'USUARIO') or 'USUARIO'
-    usuario = models.Usuario(nome=payload.nome, login=payload.login, senhaHash=senha_hash, perfil=perfil)
+    perfil = getattr(payload, 'perfil', 'U') or 'U'
+    status = getattr(payload, 'status', 'A') or 'A'
+    usuario = models.Usuario(nome=payload.nome, login=payload.login, senhaHash=senha_hash, perfil=perfil, status=status)
     db.add(usuario)
     db.commit()
     db.refresh(usuario)
@@ -69,6 +70,8 @@ def update_usuario(db: Session, usuario_id, payload: schemas.UsuarioUpdate):
         return None
     usuario.nome = payload.nome
     usuario.perfil = getattr(payload, 'perfil', usuario.perfil) or usuario.perfil
+    if getattr(payload, 'status', None):
+        usuario.status = payload.status  # type: ignore
     if getattr(payload, 'senha', None):
         usuario.senhaHash = hashlib.sha256(payload.senha.encode('utf-8')).hexdigest()
     db.commit()
@@ -87,6 +90,11 @@ def delete_usuario(db: Session, usuario_id):
 def verificar_login(db: Session, login: str, senha: str):
     usuario = get_usuario_por_login(db, login)
     if not usuario:
+        return None
+    # Bloqueia login de usuário inativo
+    status_val = (getattr(usuario, 'status', 'A') or 'A').upper()
+    # Compatível com valores antigos ('ATIVO'/'INATIVO')
+    if status_val not in ('A', 'ATIVO'):
         return None
     senha_hash = hashlib.sha256(senha.encode('utf-8')).hexdigest()
     return usuario if usuario.senhaHash == senha_hash else None

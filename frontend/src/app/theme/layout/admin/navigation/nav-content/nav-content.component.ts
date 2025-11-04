@@ -112,7 +112,7 @@ export class NavContentComponent implements OnInit {
   }
 
   private filterByRole(items: NavigationItem[], perfil: PerfilUsuario): NavigationItem[] {
-    const allowAll = perfil === 'ADMINISTRATIVO';
+    const allowAll = perfil === 'A';
     return items
       .filter((item) => allowAll || !item.roles || item.roles.includes(perfil))
       .map((item) => {

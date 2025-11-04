@@ -51,7 +51,8 @@ def ensure_usuarios_table_sqlite(conn):
             nome TEXT NOT NULL,
             login TEXT NOT NULL UNIQUE,
             senhaHash TEXT NOT NULL,
-            perfil TEXT NOT NULL
+            perfil TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT 'A'
         )
         """
     ))
@@ -70,7 +71,8 @@ def ensure_usuarios_table_postgres(conn):
             nome VARCHAR(255) NOT NULL,
             login VARCHAR(255) NOT NULL UNIQUE,
             senhaHash VARCHAR(255) NOT NULL,
-            perfil VARCHAR(30) NOT NULL
+            perfil VARCHAR(30) NOT NULL,
+            status VARCHAR(20) NOT NULL DEFAULT 'A'
         )
         """
     ))
@@ -82,6 +84,12 @@ def ensure_usuarios_table_postgres(conn):
     elif not has_uc:
         # adiciona coluna se não existir (permitindo NULL para não quebrar dados antigos)
         conn.execute(text("ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS \"senhaHash\" VARCHAR(255)"))
+
+    # Garante coluna status
+    try:
+        conn.execute(text("ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS status VARCHAR(20) NOT NULL DEFAULT 'A'"))
+    except Exception:
+        pass
 
 
 def ensure_column_sqlite(conn, table: str, column: str, column_def: str):
@@ -100,7 +108,7 @@ def ensure_fk_indexes_sqlite(conn):
 def seed_admin(conn):
     login = "kelsoncsm"
     senha_hash = hashlib.sha256("123".encode("utf-8")).hexdigest()
-    perfil = "ADMINISTRATIVO"
+    perfil = "A"
 
     # Upsert-like behavior
     res = conn.execute(text("SELECT id FROM usuarios WHERE login = :login"), {"login": login}).fetchone()
@@ -144,6 +152,8 @@ def main():
                 conn.execute(text(
                     "ALTER TABLE IF EXISTS documentos ADD COLUMN IF NOT EXISTS \"usuarioId\" UUID"
                 ))
+                # Garante coluna status na tabela usuarios
+                conn.execute(text("ALTER TABLE IF EXISTS usuarios ADD COLUMN IF NOT EXISTS status VARCHAR(20) NOT NULL DEFAULT 'A'"))
                 # If columns exist as lower-case, rename to match ORM quoted names
                 has_uc_cli = conn.execute(text("SELECT column_name FROM information_schema.columns WHERE table_name='clientes' AND column_name='usuarioId'")).fetchone()
                 has_lc_cli = conn.execute(text("SELECT column_name FROM information_schema.columns WHERE table_name='clientes' AND column_name='usuarioid'")).fetchone()

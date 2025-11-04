@@ -41,7 +41,8 @@ class Cliente(ClienteBase):
 class UsuarioBase(BaseModel):
     nome: str
     login: str
-    perfil: str = "USUARIO"
+    perfil: str = "U"
+    status: str = "A"
 
 
 class UsuarioCreate(UsuarioBase):
@@ -49,13 +50,8 @@ class UsuarioCreate(UsuarioBase):
 
 class UsuarioUpdate(BaseModel):
     nome: str
-    perfil: str = "USUARIO"
-    senha: str | None = None
-
-class UsuarioUpdate(BaseModel):
-    nome: str
-    login: str
-    perfil: str = "USUARIO"
+    perfil: str = "U"
+    status: str | None = None
     senha: str | None = None
 
 

@@ -28,14 +28,14 @@ const routes: Routes = [
       {
         path: 'register',
         loadComponent: () => import('./components/auth/register-user/register-user.component').then((c) => c.RegisterUserComponent),
-        canMatch: [roleGuard(['ADMINISTRATIVO'])]
+        canMatch: [roleGuard(['A'])]
       }
     ]
   },
   {
     path: 'dashboard',
     component: AdminComponent,
-    canMatch: [roleGuard(['ADMINISTRATIVO'])],
+    canMatch: [roleGuard(['A'])],
     children: [
       {
         path: '',
@@ -82,7 +82,7 @@ const routes: Routes = [
   {
     path: 'usuarios',
     component: AdminComponent,
-    canMatch: [roleGuard(['ADMINISTRATIVO'])],
+    canMatch: [roleGuard(['A'])],
     children: [
       {
         path: '',

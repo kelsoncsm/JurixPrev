@@ -16,7 +16,7 @@ export interface NavigationItem {
     type?: string;
   };
   children?: NavigationItem[];
-  roles?: ('ADMINISTRATIVO' | 'USUARIO')[]; // perfis permitidos
+  roles?: ('A' | 'U')[]; // perfis permitidos
 }
 
 export const NavigationItems: NavigationItem[] = [
@@ -47,7 +47,7 @@ export const NavigationItems: NavigationItem[] = [
     type: 'item',
     icon: 'feather icon-user-plus',
     url: '/usuarios',
-    roles: ['ADMINISTRATIVO']
+    roles: ['A']
 
     
   },

@@ -7,19 +7,22 @@ export interface Usuario {
   id: string;
   nome: string;
   login: string;
-  perfil: 'ADMINISTRATIVO' | 'USUARIO';
+  perfil: 'A' | 'U';
+  status: 'A' | 'I';
 }
 
 export interface UsuarioCreate {
   nome: string;
   login: string;
   senha: string;
-  perfil?: 'ADMINISTRATIVO' | 'USUARIO';
+  perfil?: 'A' | 'U';
+  status?: 'A' | 'I';
 }
 
 export interface UsuarioUpdate {
   nome: string;
-  perfil: 'ADMINISTRATIVO' | 'USUARIO';
+  perfil: 'A' | 'U';
+  status?: 'A' | 'I';
   senha?: string;
 }
 

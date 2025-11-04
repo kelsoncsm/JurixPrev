@@ -37,8 +37,8 @@ export class SignInComponent {
     // Autentica no backend e define perfil conforme resposta
     try {
       const res = await firstValueFrom(this.usuarios.autenticar({ login, senha }));
-      const perfil = (res?.usuario?.perfil || 'USUARIO').toUpperCase();
-      this.auth.setPerfil(perfil === 'ADMINISTRATIVO' ? 'ADMINISTRATIVO' : 'USUARIO');
+      const perfil = (res?.usuario?.perfil || 'U').toUpperCase();
+      this.auth.setPerfil(perfil === 'A' ? 'A' : 'U');
       if (res?.access_token) {
         this.auth.setToken(res.access_token);
       }
@@ -58,10 +58,10 @@ export class SignInComponent {
     // Mantido por compatibilidade, não usado no fluxo principal
     try {
       const usuario = await firstValueFrom(this.usuarios.obterUsuarioPorLogin(login));
-      const perfil = (usuario?.perfil || 'USUARIO').toUpperCase();
-      this.auth.setPerfil(perfil === 'ADMINISTRATIVO' ? 'ADMINISTRATIVO' : 'USUARIO');
+      const perfil = (usuario?.perfil || 'U').toUpperCase();
+      this.auth.setPerfil(perfil === 'A' ? 'A' : 'U');
     } catch {
-      this.auth.setPerfil('USUARIO');
+      this.auth.setPerfil('U');
     }
   }
 }

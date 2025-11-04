@@ -36,7 +36,8 @@ class Usuario(Base):
     nome = Column(String(255), nullable=False)
     login = Column(String(255), nullable=False, unique=True)
     senhaHash = Column(String(255), nullable=False)
-    perfil = Column(String(30), nullable=False, default="USUARIO")
+    perfil = Column(String(30), nullable=False, default="U")
+    status = Column(String(20), nullable=False, default="A")
 
 
 class Documento(Base):

@@ -1,4 +1,5 @@
-from fastapi import FastAPI, Depends, HTTPException, Header
+from fastapi import FastAPI, Depends, HTTPException
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials, OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from uuid import UUID
@@ -33,11 +34,13 @@ app.add_middleware(
 def health():
     return {"status": "ok"}
 
+bearer_scheme = HTTPBearer()
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
-def get_current_user(authorization: str | None = Header(default=None), db: Session = Depends(get_db)):
-    if not authorization or not authorization.lower().startswith("bearer "):
+
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    if not token:
         raise HTTPException(status_code=401, detail="Token ausente")
-    token = authorization.split(" ", 1)[1].strip()
     data = decode_token(token)
     if not data or not data.get("sub"):
         raise HTTPException(status_code=401, detail="Token inválido")
@@ -57,7 +60,7 @@ def get_current_user(authorization: str | None = Header(default=None), db: Sessi
 
 @app.get("/clientes", response_model=list[schemas.Cliente])
 def listar_clientes(db: Session = Depends(get_db), current_user=Depends(get_current_user)):
-    if (current_user.perfil or "USUARIO").upper() == "ADMINISTRATIVO":
+    if (current_user.perfil or "U").upper() in ("A", "ADMINISTRATIVO"):
         return crud.list_clientes(db)
     return crud.list_clientes_by_usuario(db, current_user.id)
 
@@ -82,7 +85,7 @@ def atualizar_cliente(cliente_id: UUID, payload: schemas.ClienteUpdate, db: Sess
     cliente = crud.get_cliente(db, cliente_id)
     if not cliente:
         raise HTTPException(status_code=404, detail="Cliente não encontrado")
-    if (current_user.perfil or "USUARIO").upper() != "ADMINISTRATIVO" and getattr(cliente, "usuarioId", None) != current_user.id:
+    if (current_user.perfil or "U").upper() not in ("A", "ADMINISTRATIVO") and getattr(cliente, "usuarioId", None) != current_user.id:
         raise HTTPException(status_code=403, detail="Sem acesso ao recurso")
     return crud.update_cliente(db, cliente, payload)
 
@@ -105,43 +108,43 @@ def registrar_usuario(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
-    # Apenas ADMINISTRATIVO pode cadastrar usuários
-    if (current_user.perfil or "USUARIO").upper() != "ADMINISTRATIVO":
+    # Apenas administrador pode cadastrar usuários
+    if (current_user.perfil or "U").upper() not in ("A", "ADMINISTRATIVO"):
         raise HTTPException(status_code=403, detail="Sem permissão para cadastrar usuários")
     existente = crud.get_usuario_por_login(db, payload.login)
     if existente:
         raise HTTPException(status_code=400, detail="Login já cadastrado")
     criado = crud.create_usuario(db, payload)
-    return schemas.Usuario(id=criado.id, nome=criado.nome, login=criado.login, perfil=criado.perfil)
+    return schemas.Usuario(id=criado.id, nome=criado.nome, login=criado.login, perfil=criado.perfil, status=criado.status)
 
 @app.get("/usuarios/by-login/{login}", response_model=schemas.Usuario)
 def obter_usuario_por_login(login: str, db: Session = Depends(get_db)):
     usuario = crud.get_usuario_por_login(db, login)
     if not usuario:
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
-    return schemas.Usuario(id=usuario.id, nome=usuario.nome, login=usuario.login, perfil=usuario.perfil)
+    return schemas.Usuario(id=usuario.id, nome=usuario.nome, login=usuario.login, perfil=usuario.perfil, status=usuario.status)
 
 @app.get("/usuarios", response_model=list[schemas.Usuario])
 def listar_usuarios(db: Session = Depends(get_db), current_user=Depends(get_current_user)):
-    if (current_user.perfil or "USUARIO").upper() != "ADMINISTRATIVO":
+    if (current_user.perfil or "U").upper() not in ("A", "ADMINISTRATIVO"):
         raise HTTPException(status_code=403, detail="Sem permissão para listar usuários")
     usuarios = crud.list_usuarios(db)
-    return [schemas.Usuario(id=u.id, nome=u.nome, login=u.login, perfil=u.perfil) for u in usuarios]
+    return [schemas.Usuario(id=u.id, nome=u.nome, login=u.login, perfil=u.perfil, status=u.status) for u in usuarios]
 
 
 @app.put("/usuarios/{usuario_id}", response_model=schemas.Usuario)
 def atualizar_usuario(usuario_id: UUID, payload: schemas.UsuarioUpdate, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
-    if (current_user.perfil or "USUARIO").upper() != "ADMINISTRATIVO":
+    if (current_user.perfil or "U").upper() not in ("A", "ADMINISTRATIVO"):
         raise HTTPException(status_code=403, detail="Sem permissão para editar usuários")
     atualizado = crud.update_usuario(db, usuario_id, payload)
     if not atualizado:
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
-    return schemas.Usuario(id=atualizado.id, nome=atualizado.nome, login=atualizado.login, perfil=atualizado.perfil)
+    return schemas.Usuario(id=atualizado.id, nome=atualizado.nome, login=atualizado.login, perfil=atualizado.perfil, status=atualizado.status)
 
 
 @app.delete("/usuarios/{usuario_id}")
 def remover_usuario(usuario_id: UUID, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
-    if (current_user.perfil or "USUARIO").upper() != "ADMINISTRATIVO":
+    if (current_user.perfil or "U").upper() not in ("A", "ADMINISTRATIVO"):
         raise HTTPException(status_code=403, detail="Sem permissão para excluir usuários")
     ok = crud.delete_usuario(db, usuario_id)
     if not ok:
@@ -164,7 +167,19 @@ def autenticar(payload: schemas.AuthLoginRequest, db: Session = Depends(get_db))
             "nome": usuario.nome,
             "login": usuario.login,
             "perfil": usuario.perfil,
+            "status": usuario.status,
         },
+        }
+
+@app.post("/auth/token")
+def obter_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    usuario = crud.verificar_login(db, form_data.username, form_data.password)
+    if not usuario:
+        raise HTTPException(status_code=401, detail="Credenciais inválidas")
+    token = create_token({"sub": str(usuario.id), "login": usuario.login, "perfil": usuario.perfil})
+    return {
+        "access_token": token,
+        "token_type": "bearer",
     }
 
 
@@ -212,7 +227,7 @@ def atualizar_documento(documento_id: UUID, payload: schemas.DocumentoUpdate, db
     doc = crud.get_documento(db, documento_id)
     if not doc:
         raise HTTPException(status_code=404, detail="Documento não encontrado")
-    if (current_user.perfil or "USUARIO").upper() != "ADMINISTRATIVO" and getattr(doc, "usuarioId", None) != current_user.id:
+    if (current_user.perfil or "U").upper() not in ("A", "ADMINISTRATIVO") and getattr(doc, "usuarioId", None) != current_user.id:
         raise HTTPException(status_code=403, detail="Sem acesso ao recurso")
     return crud.update_documento(db, doc, payload)
 
