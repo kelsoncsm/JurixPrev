@@ -112,8 +112,9 @@ export class NavContentComponent implements OnInit {
   }
 
   private filterByRole(items: NavigationItem[], perfil: PerfilUsuario): NavigationItem[] {
+    const allowAll = perfil === 'ADMINISTRATIVO';
     return items
-      .filter((item) => !item.roles || item.roles.includes(perfil))
+      .filter((item) => allowAll || !item.roles || item.roles.includes(perfil))
       .map((item) => {
         const clone: NavigationItem = { ...item };
         if (clone.children) {

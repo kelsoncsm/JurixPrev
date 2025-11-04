@@ -28,21 +28,23 @@ export class SignInComponent {
   async onSignIn() {
     const login = this.login?.trim();
     const senha = this.senha?.trim();
-    if (login) {
-      // Fallback para logo por ativos locais baseado no login
-      await this.trySetClientLogoByLogin(login);
-    } else {
-      this.branding.resetLogo();
-    }
+    // Não há mais busca de logo por assets/<login>; sempre usa logo padrão
+    this.branding.resetLogo();
     if (!login || !senha) {
       alert('Informe login e senha.');
       return;
     }
     // Autentica no backend e define perfil conforme resposta
     try {
-      const usuario = await firstValueFrom(this.usuarios.autenticar({ login, senha }));
-      const perfil = (usuario?.perfil || 'USUARIO').toUpperCase();
+      const res = await firstValueFrom(this.usuarios.autenticar({ login, senha }));
+      const perfil = (res?.usuario?.perfil || 'USUARIO').toUpperCase();
       this.auth.setPerfil(perfil === 'ADMINISTRATIVO' ? 'ADMINISTRATIVO' : 'USUARIO');
+      if (res?.access_token) {
+        this.auth.setToken(res.access_token);
+      }
+      if (res?.usuario?.id) {
+        this.auth.setUsuarioId(res.usuario.id);
+      }
       this.router.navigate(['/painel-usuario']);
     } catch (e: any) {
       const msg = e?.error?.detail || 'Credenciais inválidas';
@@ -50,51 +52,7 @@ export class SignInComponent {
     }
   }
 
-  // Busca logo em assets/<login>/logo.*
-  private async trySetClientLogoByLogin(login: string) {
-    const folder = login.toLowerCase().replace(/[^a-z0-9_-]/g, '');
-    const base = `assets/${folder}`;
-    const candidates = [
-      `${base}/logo.svg`,
-      `${base}/logo.png`,
-      `${base}/logo.jpg`,
-      `${base}/logo.jpeg`
-    ];
-    for (const url of candidates) {
-      try {
-        const res = await fetch(url, { method: 'HEAD' });
-        if (res.ok) {
-          this.branding.setLogo(url);
-          return true;
-        }
-      } catch {}
-    }
-    this.branding.resetLogo();
-    return false;
-  }
-
-  private async trySetClientLogoByEmail(email: string) {
-    const localPart = email.split('@')[0].toLowerCase();
-    const folder = localPart.replace(/[^a-z0-9_-]/g, '');
-    const base = `assets/${folder}`;
-    const candidates = [
-      `${base}/logo.svg`,
-      `${base}/logo.png`,
-      `${base}/logo.jpg`,
-      `${base}/logo.jpeg`
-    ];
-    for (const url of candidates) {
-      try {
-        const res = await fetch(url, { method: 'HEAD' });
-        if (res.ok) {
-          this.branding.setLogo(url);
-          return true;
-        }
-      } catch {}
-    }
-    this.branding.resetLogo();
-    return false;
-  }
+  // Removido: busca de logo por assets/<login> ou e-mail
 
   private async trySetPerfilFromBackend(login: string) {
     // Mantido por compatibilidade, não usado no fluxo principal

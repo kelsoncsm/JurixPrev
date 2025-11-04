@@ -5,12 +5,14 @@ import { SharedModule } from 'src/app/theme/shared/shared.module';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Cliente } from '../../../models/cliente.model';
+import { AuthService, PerfilUsuario } from '../../../services/auth.service';
 import { ClienteService } from '../../../services/cliente.service';
+import { UsuarioService, Usuario } from '../../../services/usuario.service';
 
 @Component({
   selector: 'app-lista-clientes',
   standalone: true,
-  imports: [SharedModule],
+  imports: [SharedModule, FormsModule, CommonModule],
   templateUrl: './lista-clientes.component.html',
   styleUrls: ['./lista-clientes.component.scss']
 })
@@ -19,15 +21,26 @@ export class ListaClientesComponent implements OnInit, OnDestroy {
   clientesFiltrados: Cliente[] = [];
   termoBusca: string = '';
   carregando: boolean = false;
+  perfil: PerfilUsuario = 'USUARIO';
+  usuarioId: string | null = null;
+  usuarios: Usuario[] = [];
+  selectedUsuarioId: string = '';
   private subscription: Subscription = new Subscription();
 
   constructor(
     private clienteService: ClienteService,
-    private router: Router
+    private router: Router,
+    private auth: AuthService,
+    private usuarioService: UsuarioService
   ) {}
 
   ngOnInit(): void {
+    this.perfil = this.auth.getPerfil();
+    this.usuarioId = this.auth.getUsuarioId();
     this.carregarClientes();
+    if (this.perfil === 'ADMINISTRATIVO') {
+      this.carregarUsuarios();
+    }
   }
 
   ngOnDestroy(): void {
@@ -52,15 +65,33 @@ export class ListaClientesComponent implements OnInit, OnDestroy {
     this.subscription.add(clientesSub);
   }
 
+  carregarUsuarios(): void {
+    const sub = this.usuarioService.listarUsuarios().subscribe({
+      next: (usuarios) => {
+        this.usuarios = usuarios;
+      },
+      error: (err) => {
+        console.error('Erro ao carregar usuários:', err);
+      }
+    });
+    this.subscription.add(sub);
+  }
+
   aplicarFiltro(): void {
-    if (!this.termoBusca.trim()) {
-      this.clientesFiltrados = [...this.clientes];
+    const termo = this.termoBusca.trim();
+    const base = termo ? this.clienteService.buscarClientes(termo) : [...this.clientes];
+    if (this.perfil === 'ADMINISTRATIVO' && this.selectedUsuarioId) {
+      this.clientesFiltrados = base.filter(c => (c.usuarioId || '') === this.selectedUsuarioId);
     } else {
-      this.clientesFiltrados = this.clienteService.buscarClientes(this.termoBusca);
+      this.clientesFiltrados = base;
     }
   }
 
   onBuscar(): void {
+    this.aplicarFiltro();
+  }
+
+  onAlterarUsuario(): void {
     this.aplicarFiltro();
   }
 

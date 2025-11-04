@@ -16,6 +16,7 @@ export interface Cliente {
   bairro: string;
   cidade: string;
   uf: string;
+  usuarioId?: string;
   dataCriacao?: Date;
   dataAtualizacao?: Date;
 }

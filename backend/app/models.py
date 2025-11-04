@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Date, Enum, Text
+from sqlalchemy import Column, String, Date, Enum, Text, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.types import Integer
@@ -26,6 +26,7 @@ class Cliente(Base):
     bairro = Column(String(100), nullable=False)
     cidade = Column(String(100), nullable=False)
     uf = Column(String(2), nullable=False)
+    usuarioId = Column(UUID(as_uuid=True), ForeignKey('usuarios.id'), nullable=False)
 
 
 class Usuario(Base):
@@ -52,3 +53,4 @@ class Documento(Base):
     geradoPorIA = Column(String(5), nullable=False, default="false")  # armazenar 'true'/'false'
     dadosFormulario = Column(Text, nullable=True)  # JSON serializado como texto
     imagemUrl = Column(Text, nullable=True)
+    usuarioId = Column(UUID(as_uuid=True), ForeignKey('usuarios.id'), nullable=False)

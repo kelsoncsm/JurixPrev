@@ -21,6 +21,14 @@
         </div>
 
         <div class="col-md-6 d-flex align-items-end justify-content-end">
+          <!-- Filtro por usuário visível apenas para ADMINISTRATIVO -->
+          <div class="me-3" *ngIf="perfil === 'ADMINISTRATIVO'">
+            <label for="usuario" class="form-label">Usuário</label>
+            <select id="usuario" class="form-select" [(ngModel)]="selectedUsuarioId" (change)="onAlterarUsuario()">
+              <option value="">Todos</option>
+              <option *ngFor="let u of usuarios" [value]="u.id">{{ u.nome }} ({{ u.login }})</option>
+            </select>
+          </div>
           <button type="button" class="btn btn-primary me-2" (click)="novoCliente()">
             <i class="fas fa-plus"></i> Novo Cliente
           </button>
@@ -69,6 +77,7 @@
         <tr *ngFor="let cliente of clientesFiltrados">
           <td>
             <div class="fw-bold">{{ cliente.nomeCompleto }}</div>
+            <!-- Removido badge de origem por solicitação -->
           </td>
           <td>{{ formatarCPF(cliente.cpf) }}</td>
           <td>{{ cliente.profissao }}</td>

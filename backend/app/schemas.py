@@ -32,6 +32,7 @@ class ClienteUpdate(ClienteBase):
 
 class Cliente(ClienteBase):
     id: UUID
+    usuarioId: UUID | None = None
 
     class Config:
         from_attributes = True
@@ -46,6 +47,17 @@ class UsuarioBase(BaseModel):
 class UsuarioCreate(UsuarioBase):
     senha: str
 
+class UsuarioUpdate(BaseModel):
+    nome: str
+    perfil: str = "USUARIO"
+    senha: str | None = None
+
+class UsuarioUpdate(BaseModel):
+    nome: str
+    login: str
+    perfil: str = "USUARIO"
+    senha: str | None = None
+
 
 class Usuario(UsuarioBase):
     id: UUID
@@ -57,6 +69,12 @@ class Usuario(UsuarioBase):
 class AuthLoginRequest(BaseModel):
     login: str
     senha: str
+
+
+class AuthTokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    usuario: "Usuario"
 
 
 class DocumentoBase(BaseModel):
@@ -82,6 +100,7 @@ class DocumentoUpdate(DocumentoBase):
 
 class Documento(DocumentoBase):
     id: UUID
+    usuarioId: UUID | None = None
 
     class Config:
         from_attributes = True

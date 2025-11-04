@@ -42,19 +42,22 @@ export const NavigationItems: NavigationItem[] = [
     url: '/clientes'
   },
   {
+    id: 'usuarios',
+    title: 'Usuários',
+    type: 'item',
+    icon: 'feather icon-user-plus',
+    url: '/usuarios',
+    roles: ['ADMINISTRATIVO']
+
+    
+  },
+  {
     id: 'account',
     title: 'Conta',
     type: 'group',
     icon: 'feather icon-user',
     children: [
-      {
-        id: 'register-user',
-        title: 'Cadastro de Usuário',
-        type: 'item',
-        icon: 'feather icon-user-plus',
-        url: '/register',
-        roles: ['ADMINISTRATIVO']
-      },
+
       {
         id: 'logout',
         title: 'Logout',

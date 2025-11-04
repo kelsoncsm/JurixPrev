@@ -80,6 +80,21 @@ const routes: Routes = [
     ]
   },
   {
+    path: 'usuarios',
+    component: AdminComponent,
+    canMatch: [roleGuard(['ADMINISTRATIVO'])],
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./components/usuarios/lista-usuarios/lista-usuarios.component').then((c) => c.ListaUsuariosComponent)
+      },
+      {
+        path: 'novo',
+        loadComponent: () => import('./components/usuarios/cadastro-usuario/cadastro-usuario.component').then((c) => c.CadastroUsuarioComponent)
+      }
+    ]
+  },
+  {
     path: 'documentos',
     component: AdminComponent,
     children: [

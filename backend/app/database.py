@@ -5,10 +5,15 @@ from sqlalchemy.engine.url import make_url
 from sqlalchemy.exc import OperationalError
 from dotenv import load_dotenv
 
-load_dotenv()
+# Carrega .env do diretório backend, independentemente do CWD
+_APP_DIR = os.path.dirname(__file__)
+_BACKEND_DIR = os.path.dirname(_APP_DIR)
+_ENV_PATH = os.path.join(_BACKEND_DIR, ".env")
+load_dotenv(dotenv_path=_ENV_PATH)
 
-# Default to local Postgres if DATABASE_URL not set
-DATABASE_URL = os.getenv("DATABASE_URL") or "postgresql+psycopg2://postgres@localhost:5432/jurixprev"
+# Obrigatório: usar DATABASE_URL. Se não existir, falha explicitamente.
+DATABASE_URL = os.getenv("DATABASE_URL")
+
 
 # For SQLite, need check_same_thread; for Postgres, defaults are fine
 def _ensure_database_exists(url_str: str):
@@ -39,23 +44,21 @@ def _ensure_database_exists(url_str: str):
 _ensure_database_exists(DATABASE_URL)
 
 
-def _create_engine_with_fallback(url_str: str):
-    # Prefer configured DB; if unreachable, fallback to local SQLite to keep API online
+def _create_engine_strict(url_str: str):
+    # Cria engine e valida conexão; sem fallback para SQLite.
     if url_str.startswith("sqlite"):
-        return create_engine(url_str, connect_args={"check_same_thread": False})
-    try:
+        eng = create_engine(url_str, connect_args={"check_same_thread": False})
+    else:
         eng = create_engine(url_str)
-        # attempt a quick connection
+    # valida conexão
+    try:
         with eng.connect() as conn:
             conn.execute(text("SELECT 1"))
-        return eng
-    except OperationalError:
-        fallback = "sqlite:///./jurixprev.db"
-        print("[database] Aviso: não foi possível conectar ao Postgres. Fazendo fallback para SQLite em jurixprev.db.")
-        return create_engine(fallback, connect_args={"check_same_thread": False})
+    except OperationalError as e:
+        raise RuntimeError(f"Não foi possível conectar ao banco configurado ({url_str}). Erro: {e}")
+    return eng
 
-
-engine = _create_engine_with_fallback(DATABASE_URL)
+engine = _create_engine_strict(DATABASE_URL)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

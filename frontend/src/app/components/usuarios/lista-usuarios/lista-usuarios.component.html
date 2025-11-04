@@ -1,0 +1,78 @@
+<div class="row">
+  <div class="col-12">
+    <h4>Usuários</h4>
+    <div class="mb-3">
+      <div class="card p-3">
+        <div class="row g-2">
+          <div class="col-md-3">
+            <label class="form-label">Nome</label>
+            <input class="form-control" [(ngModel)]="nome" placeholder="Nome" />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Login</label>
+            <input class="form-control" [(ngModel)]="login" [readonly]="editingUserId" placeholder="Login" />
+          </div>
+          <div class="col-md-3" *ngIf="!editingUserId">
+            <label class="form-label">Senha</label>
+            <input type="password" class="form-control" [(ngModel)]="senha" placeholder="Senha" />
+          </div>
+          <div class="col-md-3" *ngIf="editingUserId">
+            <label class="form-label d-block">Senha</label>
+            <div class="form-check form-switch mb-2">
+              <input class="form-check-input" type="checkbox" [(ngModel)]="alterarSenha" id="toggleAlterarSenha">
+              <label class="form-check-label" for="toggleAlterarSenha">Alterar senha</label>
+            </div>
+            <input *ngIf="alterarSenha" type="password" class="form-control" [(ngModel)]="senha" placeholder="Nova senha (opcional)" />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Perfil</label>
+            <select class="form-select" [(ngModel)]="perfil">
+              <option value="USUARIO">Usuário</option>
+              <option value="ADMINISTRATIVO">Administrativo</option>
+            </select>
+          </div>
+        </div>
+        <div class="mt-3">
+          <button class="btn btn-primary" (click)="registrar()" [disabled]="carregando">
+            {{ carregando ? 'Salvando...' : (editingUserId ? 'Salvar Alterações' : 'Adicionar Usuário') }}
+          </button>
+          <button class="btn btn-secondary ms-2" (click)="resetForm()" [disabled]="carregando" *ngIf="editingUserId">
+            Cancelar edição
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Login</th>
+                <th>Perfil</th>
+                <th style="width: 160px;">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let u of usuarios">
+                <td>{{ u.nome }}</td>
+                <td>{{ u.login }}</td>
+                <td>
+                  <span class="badge" [class.bg-success]="u.perfil==='ADMINISTRATIVO'" [class.bg-secondary]="u.perfil==='USUARIO'">
+                    {{ u.perfil }}
+                  </span>
+                </td>
+                <td>
+                  <button class="btn btn-sm btn-outline-primary me-2" (click)="editar(u)">Editar</button>
+                  <button class="btn btn-sm btn-outline-danger" (click)="excluir(u)">Excluir</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
