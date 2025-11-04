@@ -3,9 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { Cliente, DadosFormularioCliente, EstadoCivil } from '../../models/cliente.model';
-import { ClienteService } from '../../services/cliente.service';
-import { BrandingService } from '../../services/branding.service';
+import { Cliente, DadosFormularioCliente, EstadoCivil } from '../../../models/cliente.model';
+import { ClienteService } from '../../../services/cliente.service';
+import { BrandingService } from '../../../services/branding.service';
 
 @Component({
   selector: 'app-cadastrar-cliente',

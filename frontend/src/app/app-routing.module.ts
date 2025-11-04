@@ -64,7 +64,7 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        loadComponent: () => import('./demo/painel-usuario/painel-usuario.component').then((c) => c.PainelUsuarioComponent)
+        loadComponent: () => import('./components/painel-usuario/painel-usuario.component').then((c) => c.PainelUsuarioComponent)
       }
     ]
   },
@@ -74,19 +74,19 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        loadComponent: () => import('./demo/documentos/lista-documentos/lista-documentos.component').then((c) => c.ListaDocumentosComponent)
+        loadComponent: () => import('./components/documentos/lista-documentos/lista-documentos.component').then((c) => c.ListaDocumentosComponent)
       },
       {
         path: 'novo',
-        loadComponent: () => import('./demo/documentos/gerar-documento/gerar-documento.component').then((c) => c.GerarDocumentoComponent)
+        loadComponent: () => import('./components/documentos/gerar-documento/gerar-documento.component').then((c) => c.GerarDocumentoComponent)
       },
       {
         path: 'editar/:id',
-        loadComponent: () => import('./demo/documentos/gerar-documento/gerar-documento.component').then((c) => c.GerarDocumentoComponent)
+        loadComponent: () => import('./components/documentos/gerar-documento/gerar-documento.component').then((c) => c.GerarDocumentoComponent)
       },
       {
         path: 'visualizar/:id',
-        loadComponent: () => import('./demo/documentos/gerar-documento/gerar-documento.component').then((c) => c.GerarDocumentoComponent)
+        loadComponent: () => import('./components/documentos/gerar-documento/gerar-documento.component').then((c) => c.GerarDocumentoComponent)
       }
     ]
   },
@@ -96,19 +96,19 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        loadComponent: () => import('./components/lista-clientes/lista-clientes.component').then((c) => c.ListaClientesComponent)
+        loadComponent: () => import('./components/clientes/lista-clientes/lista-clientes.component').then((c) => c.ListaClientesComponent)
       },
       {
         path: 'novo',
-        loadComponent: () => import('./components/cadastrar-cliente/cadastrar-cliente.component').then((c) => c.CadastrarClienteComponent)
+        loadComponent: () => import('./components/clientes/cadastrar-cliente/cadastrar-cliente.component').then((c) => c.CadastrarClienteComponent)
       },
       {
         path: 'editar/:id',
-        loadComponent: () => import('./components/cadastrar-cliente/cadastrar-cliente.component').then((c) => c.CadastrarClienteComponent)
+        loadComponent: () => import('./components/clientes/cadastrar-cliente/cadastrar-cliente.component').then((c) => c.CadastrarClienteComponent)
       },
       {
         path: 'visualizar/:id',
-        loadComponent: () => import('./components/cadastrar-cliente/cadastrar-cliente.component').then((c) => c.CadastrarClienteComponent)
+        loadComponent: () => import('./components/clientes/cadastrar-cliente/cadastrar-cliente.component').then((c) => c.CadastrarClienteComponent)
       }
     ]
   }

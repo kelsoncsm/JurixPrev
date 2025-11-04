@@ -1,56 +1,55 @@
-// Tema azul específico para a tela de login
-// Fundo escuro inspirado no anexo (navy profundo)
-.auth-wrapper {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #0f172a; // tom semelhante ao screenshot (tailwind slate-900)
+// Layout e tipografia inspirados na página de referência,
+// mantendo cores definidas pelo tema global de autenticação.
+
+.auth-wrapper.aut-bg-img {
+  position: relative;
 }
 
-.auth-content .card {
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
-  background-color: #111827; // leve contraste sobre o fundo
-  color: #e5e7eb; // texto claro
+.hero-copy {
+  max-width: 640px;
+  padding: 70px 40px;
+  color: #fff;
+
+  h2 {
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    margin-bottom: 1rem;
+    opacity: 0.9;
+  }
+
+  .hero-benefits {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+      color: #fff;
+      opacity: 0.95;
+
+      i {
+        color: #fff;
+      }
+    }
+  }
+
+  .hero-trust {
+    font-size: 0.95rem;
+    opacity: 0.85;
+  }
 }
 
-.auth-content .card-body {
-  padding: 2rem;
+@media only screen and (max-width: 991px) {
+  .hero-copy {
+    display: none;
+  }
 }
 
 .auth-content .card-body img.img-fluid {
   max-height: 48px;
-}
-
-.auth-content .card-body h4 {
-  margin-top: 0.25rem;
-}
-
-.auth-content .btn-primary {
-  background-color: #2563eb;
-  border-color: #2563eb;
-}
-
-.auth-content .input-group-text {
-  background-color: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.18);
-  color: #e5e7eb;
-}
-
-// campos de input com alto contraste
-.auth-content .form-control {
-  background-color: #0b1220;
-  border-color: rgba(255, 255, 255, 0.15);
-  color: #e5e7eb;
-
-  &::placeholder {
-    color: #9ca3af;
-  }
-
-  &:focus {
-    background-color: #0b1220;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
-  }
 }

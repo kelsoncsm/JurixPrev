@@ -4,8 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { SharedModule } from 'src/app/theme/shared/shared.module';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { Cliente } from '../../models/cliente.model';
-import { ClienteService } from '../../services/cliente.service';
+import { Cliente } from '../../../models/cliente.model';
+import { ClienteService } from '../../../services/cliente.service';
 
 @Component({
   selector: 'app-lista-clientes',

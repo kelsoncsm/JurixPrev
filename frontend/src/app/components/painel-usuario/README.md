@@ -1,0 +1,1 @@
+Este diretório contém o componente Painel do Usuário.
