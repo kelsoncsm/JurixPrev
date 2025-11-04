@@ -5,6 +5,7 @@ import { Location, LocationStrategy } from '@angular/common';
 // project import
 import { environment } from 'src/environments/environment';
 import { NavigationItem, NavigationItems } from '../navigation';
+import { AuthService, PerfilUsuario } from 'src/app/services/auth.service';
 import { SharedModule } from 'src/app/theme/shared/shared.module';
 import { NavGroupComponent } from './nav-group/nav-group.component';
 import { NavItemComponent } from './nav-item/nav-item.component';
@@ -33,8 +34,9 @@ export class NavContentComponent implements OnInit {
   NavMobCollapse = output();
 
   // constructor
-  constructor() {
-    this.navigation = NavigationItems;
+  constructor(private authService: AuthService) {
+    const perfil = this.authService.getPerfil();
+    this.navigation = this.filterByRole(NavigationItems, perfil);
     this.windowWidth = window.innerWidth;
     this.scrollWidth = 0;
     this.contentWidth = 0;
@@ -107,5 +109,17 @@ export class NavContentComponent implements OnInit {
         last_parent.classList.add('active');
       }
     }
+  }
+
+  private filterByRole(items: NavigationItem[], perfil: PerfilUsuario): NavigationItem[] {
+    return items
+      .filter((item) => !item.roles || item.roles.includes(perfil))
+      .map((item) => {
+        const clone: NavigationItem = { ...item };
+        if (clone.children) {
+          clone.children = this.filterByRole(clone.children, perfil);
+        }
+        return clone;
+      });
   }
 }

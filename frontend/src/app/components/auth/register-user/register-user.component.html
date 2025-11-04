@@ -1,0 +1,48 @@
+<div class="auth-wrapper">
+  <div class="auth-content">
+    <div class="card">
+      <div class="row align-items-center text-center">
+        <div class="col-md-12">
+          <div class="card-body">
+            <img src="assets/images/juriprev.svg" alt="JuriXPrev" class="img-fluid mb-2" />
+            <h4 class="mb-3 f-w-400">Criar usuário</h4>
+
+            <form [formGroup]="form" (ngSubmit)="onSubmit()">
+              <div class="input-group mb-3">
+                <span class="input-group-text"><i class="feather icon-user"></i></span>
+                <input type="text" class="form-control" placeholder="Nome" formControlName="nome" />
+              </div>
+              <div class="input-group mb-3">
+                <span class="input-group-text"><i class="feather icon-user"></i></span>
+                <input type="text" class="form-control" placeholder="Login" formControlName="login" />
+              </div>
+              <div class="input-group mb-4">
+                <span class="input-group-text"><i class="feather icon-lock"></i></span>
+                <input type="password" class="form-control" placeholder="Senha" formControlName="senha" />
+              </div>
+
+              <div class="input-group mb-4">
+                <span class="input-group-text"><i class="feather icon-shield"></i></span>
+                <select class="form-select" formControlName="perfil">
+                  <option value="USUARIO">Usuário</option>
+                  <option value="ADMINISTRATIVO">Administrativo</option>
+                </select>
+              </div>
+
+              <div class="d-grid">
+                <button class="btn btn-primary btn-block mb-4" [disabled]="carregando" type="submit">
+                  {{ carregando ? 'Salvando...' : 'Registrar' }}
+                </button>
+              </div>
+            </form>
+
+            <p class="mb-2">
+              Já possui conta?
+              <a [routerLink]="['/login']" class="f-w-400">Entrar</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

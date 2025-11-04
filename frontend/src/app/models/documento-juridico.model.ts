@@ -10,6 +10,7 @@ export interface DocumentoJuridico {
   dadosFormulario?: DadosFormulario;
   revisao?: string;
   geradoPorIA: boolean;
+  imagemUrl?: string;
 }
 
 export enum TipoDocumento {

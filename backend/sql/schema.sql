@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS clientes (
     bairro VARCHAR(100) NOT NULL,
     cidade VARCHAR(100) NOT NULL,
     uf CHAR(2) NOT NULL,
-    logo_url TEXT
+    -- logo_url removed
 );
 
 -- Indexes (e.g., email, cpf)

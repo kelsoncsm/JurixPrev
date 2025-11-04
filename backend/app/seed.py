@@ -2,7 +2,9 @@ from datetime import date
 import json
 
 from .database import engine, SessionLocal
-from .models import Base, Cliente, Documento
+from .models import Base, Cliente, Documento, Usuario
+from . import crud, schemas
+import hashlib
 
 
 def seed():
@@ -30,7 +32,6 @@ def seed():
                 bairro="Centro",
                 cidade="São Paulo",
                 uf="SP",
-                logoUrl=None,
             )
             c2 = Cliente(
                 nomeCompleto="Ana Souza",
@@ -49,7 +50,6 @@ def seed():
                 bairro="Jardins",
                 cidade="São Paulo",
                 uf="SP",
-                logoUrl=None,
             )
             db.add_all([c1, c2])
 
@@ -86,10 +86,30 @@ def seed():
             )
             db.add_all([d1, d2])
 
+        # Inserir usuário ADMINISTRATIVO padrão se não existir
+        admin_login = "admin"
+        existente = db.query(Usuario).filter(Usuario.login == admin_login).first()
+        # senha desejada para o admin
+        nova_senha_hash = hashlib.sha256("123456".encode('utf-8')).hexdigest()
+        if not existente:
+            # cria admin com senha 123456
+            admin = Usuario(
+                nome="Administrador",
+                login=admin_login,
+                senhaHash=nova_senha_hash,
+                perfil="ADMINISTRATIVO"
+            )
+            db.add(admin)
+        else:
+            # atualiza senha e perfil, garantindo configuração correta
+            existente.senhaHash = nova_senha_hash
+            existente.perfil = "ADMINISTRATIVO"
+
         db.commit()
         return {
             "clientes": db.query(Cliente).count(),
             "documentos": db.query(Documento).count(),
+            "usuarios": db.query(Usuario).count(),
         }
     finally:
         db.close()

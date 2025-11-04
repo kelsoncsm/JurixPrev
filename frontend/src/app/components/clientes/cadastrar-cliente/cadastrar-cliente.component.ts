@@ -5,7 +5,6 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Cliente, DadosFormularioCliente, EstadoCivil } from '../../../models/cliente.model';
 import { ClienteService } from '../../../services/cliente.service';
-import { BrandingService } from '../../../services/branding.service';
 
 @Component({
   selector: 'app-cadastrar-cliente',
@@ -22,14 +21,12 @@ export class CadastrarClienteComponent implements OnInit, OnDestroy {
   carregando: boolean = false;
   salvando: boolean = false;
   estadosCivis = Object.values(EstadoCivil);
-  logoPreview: string | null = null;
   
   private subscription: Subscription = new Subscription();
 
   constructor(
     private fb: FormBuilder,
     private clienteService: ClienteService,
-    private branding: BrandingService,
     private router: Router,
     private route: ActivatedRoute
   ) {
@@ -61,8 +58,7 @@ export class CadastrarClienteComponent implements OnInit, OnDestroy {
       endereco: ['', [Validators.required, Validators.minLength(5)]],
       bairro: ['', [Validators.required, Validators.minLength(2)]],
       cidade: ['', [Validators.required, Validators.minLength(2)]],
-      uf: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(2)]],
-      logoUrl: ['']
+      uf: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(2)]]
     });
   }
 
@@ -123,14 +119,8 @@ export class CadastrarClienteComponent implements OnInit, OnDestroy {
       endereco: cliente.endereco,
       bairro: cliente.bairro,
       cidade: cliente.cidade,
-      uf: cliente.uf.toUpperCase(),
-      logoUrl: cliente.logoUrl || ''
+      uf: cliente.uf.toUpperCase()
     });
-
-    this.logoPreview = cliente.logoUrl || null;
-    if (cliente.logoUrl && cliente.logoUrl.trim()) {
-      this.branding.setLogo(cliente.logoUrl);
-    }
   }
 
   private formatarDataParaInput(data: Date): string {
@@ -187,7 +177,6 @@ export class CadastrarClienteComponent implements OnInit, OnDestroy {
         if (this.modoEdicao && this.clienteId) {
           const sub = this.clienteService.atualizarCliente(this.clienteId, dadosFormulario).subscribe({
             next: () => {
-              this.branding.setLogo(dadosFormulario.logoUrl);
               alert('Cliente atualizado com sucesso!');
               this.router.navigate(['/clientes']);
             },
@@ -200,7 +189,6 @@ export class CadastrarClienteComponent implements OnInit, OnDestroy {
         } else {
           const sub = this.clienteService.criarCliente(dadosFormulario).subscribe({
             next: () => {
-              this.branding.setLogo(dadosFormulario.logoUrl);
               alert('Cliente cadastrado com sucesso!');
               this.router.navigate(['/clientes']);
             },
@@ -278,26 +266,5 @@ export class CadastrarClienteComponent implements OnInit, OnDestroy {
   campoTemErro(campo: string): boolean {
     const controle = this.formularioCliente.get(campo);
     return !!(controle?.errors && controle.touched);
-  }
-
-  onLogoSelected(event: any): void {
-    const file: File | undefined = event?.target?.files?.[0];
-    if (!file) {
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const dataUrl = reader.result as string;
-      this.logoPreview = dataUrl;
-      this.formularioCliente.patchValue({ logoUrl: dataUrl });
-    };
-    reader.readAsDataURL(file);
-  }
-
-  removerLogo(): void {
-    this.logoPreview = null;
-    this.formularioCliente.patchValue({ logoUrl: '' });
-    this.branding.resetLogo();
   }
 }

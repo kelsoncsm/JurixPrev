@@ -1,6 +1,7 @@
 // Angular Import
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import { roleGuard } from './guards/role.guard';
 
 // project import
 import { AdminComponent } from './theme/layout/admin/admin.component';
@@ -21,14 +22,20 @@ const routes: Routes = [
         loadComponent: () => import('./demo/pages/authentication/sign-in/sign-in.component').then((c) => c.SignInComponent)
       },
       {
+        path: 'logout',
+        loadComponent: () => import('./components/auth/logout/logout.component').then((c) => c.LogoutComponent)
+      },
+      {
         path: 'register',
-        loadComponent: () => import('./demo/pages/authentication/sign-up/sign-up.component').then((c) => c.SignUpComponent)
+        loadComponent: () => import('./components/auth/register-user/register-user.component').then((c) => c.RegisterUserComponent),
+        canMatch: [roleGuard(['ADMINISTRATIVO'])]
       }
     ]
   },
   {
     path: 'dashboard',
     component: AdminComponent,
+    canMatch: [roleGuard(['ADMINISTRATIVO'])],
     children: [
       {
         path: '',
@@ -46,6 +53,10 @@ const routes: Routes = [
       {
         path: 'forms',
         loadComponent: () => import('./demo/forms/form-elements/form-elements.component').then((c) => c.FormElementsComponent)
+      },
+      {
+        path: 'logout',
+        loadComponent: () => import('./components/auth/logout/logout.component').then((c) => c.LogoutComponent)
       },
       {
         path: 'tables',

@@ -20,7 +20,6 @@ class ClienteBase(BaseModel):
     bairro: str
     cidade: str
     uf: str
-    logoUrl: str | None = None
 
 
 class ClienteCreate(ClienteBase):
@@ -38,6 +37,28 @@ class Cliente(ClienteBase):
         from_attributes = True
 
 
+class UsuarioBase(BaseModel):
+    nome: str
+    login: str
+    perfil: str = "USUARIO"
+
+
+class UsuarioCreate(UsuarioBase):
+    senha: str
+
+
+class Usuario(UsuarioBase):
+    id: UUID
+
+    class Config:
+        from_attributes = True
+
+
+class AuthLoginRequest(BaseModel):
+    login: str
+    senha: str
+
+
 class DocumentoBase(BaseModel):
     tipoDocumento: str
     titulo: str
@@ -48,6 +69,7 @@ class DocumentoBase(BaseModel):
     dataUltimaEdicao: date
     geradoPorIA: bool = False
     dadosFormulario: dict | None = None
+    imagemUrl: str | None = None
 
 
 class DocumentoCreate(DocumentoBase):

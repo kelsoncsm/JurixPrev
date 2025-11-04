@@ -102,7 +102,8 @@ export class DocumentoJuridicoService {
       dataCreacao: new Date().toISOString().substring(0, 10),
       dataUltimaEdicao: new Date().toISOString().substring(0, 10),
       geradoPorIA: false,
-      dadosFormulario: documento.dadosFormulario || null
+      dadosFormulario: documento.dadosFormulario || null,
+      imagemUrl: documento.imagemUrl || null
     };
     return this.http.post<DocumentoJuridico>(this.baseUrl, payload).pipe(
       map(d => ({
@@ -124,7 +125,8 @@ export class DocumentoJuridicoService {
       dataCreacao: (docAtual?.dataCreacao || new Date()).toISOString().substring(0, 10),
       dataUltimaEdicao: new Date().toISOString().substring(0, 10),
       geradoPorIA: documento.geradoPorIA ?? docAtual?.geradoPorIA ?? false,
-      dadosFormulario: documento.dadosFormulario ?? docAtual?.dadosFormulario ?? null
+      dadosFormulario: documento.dadosFormulario ?? docAtual?.dadosFormulario ?? null,
+      imagemUrl: documento.imagemUrl ?? docAtual?.imagemUrl ?? null
     };
     return this.http.put<DocumentoJuridico>(`${this.baseUrl}/${id}`, payload).pipe(
       map(d => ({

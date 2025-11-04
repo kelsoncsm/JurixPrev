@@ -202,6 +202,24 @@
   }
 }
 
+/* Esconder captions do menu quando colapsado e sem hover */
+.pcoded-navbar.navbar-collapsed {
+  .pcoded-inner-navbar .pcoded-menu-caption {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+}
+
+.pcoded-navbar.navbar-collapsed:hover {
+  .pcoded-inner-navbar .pcoded-menu-caption {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+}
+
 /* Funcionalidade de hover para o menu lateral */
 .pcoded-navbar {
   transition: width 0.3s ease, transform 0.3s ease;

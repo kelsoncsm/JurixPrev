@@ -26,7 +26,16 @@ class Cliente(Base):
     bairro = Column(String(100), nullable=False)
     cidade = Column(String(100), nullable=False)
     uf = Column(String(2), nullable=False)
-    logoUrl = Column(Text, nullable=True)
+
+
+class Usuario(Base):
+    __tablename__ = "usuarios"
+
+    id = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    nome = Column(String(255), nullable=False)
+    login = Column(String(255), nullable=False, unique=True)
+    senhaHash = Column(String(255), nullable=False)
+    perfil = Column(String(30), nullable=False, default="USUARIO")
 
 
 class Documento(Base):
@@ -42,3 +51,4 @@ class Documento(Base):
     dataUltimaEdicao = Column(Date, nullable=False)
     geradoPorIA = Column(String(5), nullable=False, default="false")  # armazenar 'true'/'false'
     dadosFormulario = Column(Text, nullable=True)  # JSON serializado como texto
+    imagemUrl = Column(Text, nullable=True)

@@ -16,7 +16,6 @@ export interface Cliente {
   bairro: string;
   cidade: string;
   uf: string;
-  logoUrl?: string;
   dataCriacao?: Date;
   dataAtualizacao?: Date;
 }
@@ -46,5 +45,4 @@ export interface DadosFormularioCliente {
   bairro: string;
   cidade: string;
   uf: string;
-  logoUrl?: string;
 }

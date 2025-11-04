@@ -14,7 +14,14 @@ app = FastAPI(title="JurixPrev API")
 # CORS for Angular dev server
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:4204", "http://127.0.0.1:4204"],
+    allow_origins=[
+        "http://localhost:4200",
+        "http://127.0.0.1:4200",
+        "http://localhost:4201",
+        "http://127.0.0.1:4201",
+        "http://localhost:4204",
+        "http://127.0.0.1:4204",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -59,6 +66,31 @@ def remover_cliente(cliente_id: UUID, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Cliente não encontrado")
     crud.delete_cliente(db, cliente)
     return {"ok": True}
+
+
+# Usuários
+@app.post("/usuarios/register", response_model=schemas.Usuario)
+def registrar_usuario(payload: schemas.UsuarioCreate, db: Session = Depends(get_db)):
+    existente = crud.get_usuario_por_login(db, payload.login)
+    if existente:
+        raise HTTPException(status_code=400, detail="Login já cadastrado")
+    criado = crud.create_usuario(db, payload)
+    return schemas.Usuario(id=criado.id, nome=criado.nome, login=criado.login, perfil=criado.perfil)
+
+@app.get("/usuarios/by-login/{login}", response_model=schemas.Usuario)
+def obter_usuario_por_login(login: str, db: Session = Depends(get_db)):
+    usuario = crud.get_usuario_por_login(db, login)
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado")
+    return schemas.Usuario(id=usuario.id, nome=usuario.nome, login=usuario.login, perfil=usuario.perfil)
+
+
+@app.post("/auth/login", response_model=schemas.Usuario)
+def autenticar(payload: schemas.AuthLoginRequest, db: Session = Depends(get_db)):
+    usuario = crud.verificar_login(db, payload.login, payload.senha)
+    if not usuario:
+        raise HTTPException(status_code=401, detail="Credenciais inválidas")
+    return schemas.Usuario(id=usuario.id, nome=usuario.nome, login=usuario.login, perfil=usuario.perfil)
 
 
 # Documentos

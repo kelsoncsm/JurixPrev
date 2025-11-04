@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from . import models, schemas
+import hashlib
 
 
 def list_clientes(db: Session):
@@ -29,6 +30,34 @@ def update_cliente(db: Session, cliente, payload: schemas.ClienteUpdate):
 def delete_cliente(db: Session, cliente):
     db.delete(cliente)
     db.commit()
+
+
+# Usuarios
+def get_usuario_por_email(db: Session, email: str):
+    # Mantido apenas por compatibilidade, usa coluna 'login' se necessário
+    return db.query(models.Usuario).filter(models.Usuario.login == email).first()
+
+def get_usuario_por_login(db: Session, login: str):
+    return db.query(models.Usuario).filter(models.Usuario.login == login).first()
+
+
+def create_usuario(db: Session, payload: schemas.UsuarioCreate):
+    # hashing simples para demo; em produção, usar bcrypt/argon2
+    senha_hash = hashlib.sha256(payload.senha.encode('utf-8')).hexdigest()
+    perfil = getattr(payload, 'perfil', 'USUARIO') or 'USUARIO'
+    usuario = models.Usuario(nome=payload.nome, login=payload.login, senhaHash=senha_hash, perfil=perfil)
+    db.add(usuario)
+    db.commit()
+    db.refresh(usuario)
+    return usuario
+
+
+def verificar_login(db: Session, login: str, senha: str):
+    usuario = get_usuario_por_login(db, login)
+    if not usuario:
+        return None
+    senha_hash = hashlib.sha256(senha.encode('utf-8')).hexdigest()
+    return usuario if usuario.senhaHash == senha_hash else None
 
 
 # Documentos

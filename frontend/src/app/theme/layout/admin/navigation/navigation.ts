@@ -16,6 +16,7 @@ export interface NavigationItem {
     type?: string;
   };
   children?: NavigationItem[];
+  roles?: ('ADMINISTRATIVO' | 'USUARIO')[]; // perfis permitidos
 }
 
 export const NavigationItems: NavigationItem[] = [
@@ -39,6 +40,29 @@ export const NavigationItems: NavigationItem[] = [
     type: 'item',
     icon: 'feather icon-users',
     url: '/clientes'
+  },
+  {
+    id: 'account',
+    title: 'Conta',
+    type: 'group',
+    icon: 'feather icon-user',
+    children: [
+      {
+        id: 'register-user',
+        title: 'Cadastro de Usuário',
+        type: 'item',
+        icon: 'feather icon-user-plus',
+        url: '/register',
+        roles: ['ADMINISTRATIVO']
+      },
+      {
+        id: 'logout',
+        title: 'Logout',
+        type: 'item',
+        icon: 'feather icon-log-out',
+        url: '/logout'
+      }
+    ]
   }
   // ,
   // {

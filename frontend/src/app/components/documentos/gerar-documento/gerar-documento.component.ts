@@ -100,7 +100,8 @@ export class GerarDocumentoComponent implements OnInit, OnDestroy {
     // Formulário da aba Conteúdo
     this.conteudoForm = this.fb.group({
       titulo: ['', Validators.required],
-      conteudo: ['', Validators.required]
+      conteudo: ['', Validators.required],
+      imagemUrl: ['']
     });
   }
 
@@ -139,7 +140,8 @@ export class GerarDocumentoComponent implements OnInit, OnDestroy {
     // Preencher formulário de conteúdo
     this.conteudoForm.patchValue({
       titulo: documento.titulo,
-      conteudo: documento.conteudo
+      conteudo: documento.conteudo,
+      imagemUrl: (documento as any).imagemUrl || ''
     });
 
     this.conteudoGerado = documento.conteudo;
@@ -292,11 +294,14 @@ export class GerarDocumentoComponent implements OnInit, OnDestroy {
     const tipo = this.tipoForm.value?.tipoDocumento || '';
     const tom = this.tipoForm.value?.tomTexto || '';
     const corpoHtml = this.formatarConteudoParaHTML(conteudo);
+    const imagemUrl = (this.conteudoForm.value as any)?.imagemUrl || '';
     const estilos = `
       <style>
         body { font-family: Arial, Helvetica, sans-serif; line-height: 1.5; color: #000; }
         .doc-container { max-width: 800px; margin: 0 auto; padding: 24px; }
         .doc-header { border-bottom: 2px solid #333; margin-bottom: 16px; padding-bottom: 8px; }
+        .doc-logo { display: flex; align-items: center; gap: 12px; }
+        .doc-logo img { max-height: 80px; max-width: 200px; object-fit: contain; }
         .doc-meta { font-size: 12px; color: #555; margin-top: 4px; }
         .doc-title { font-size: 22px; font-weight: bold; margin: 16px 0; }
         .doc-content { font-size: 14px; white-space: normal; }
@@ -307,6 +312,7 @@ export class GerarDocumentoComponent implements OnInit, OnDestroy {
     `;
     const cabecalho = `
       <div class="doc-header">
+        ${imagemUrl ? `<div class="doc-logo"><img src="${this.escapeHtml(imagemUrl)}" alt="Imagem do Documento" /></div>` : ''}
         <div><strong>Tipo:</strong> ${this.escapeHtml(tipo)} | <strong>Tom:</strong> ${this.escapeHtml(tom)}</div>
         <div class="doc-meta">
           <div><strong>Cliente:</strong> ${this.escapeHtml(cliente?.nomeCliente || '')}</div>
@@ -368,6 +374,7 @@ export class GerarDocumentoComponent implements OnInit, OnDestroy {
       tomTexto: this.tipoForm.value.tomTexto,
       titulo: this.conteudoForm.value.titulo,
       conteudo: this.conteudoForm.value.conteudo,
+      imagemUrl: (this.conteudoForm.value as any)?.imagemUrl || '',
       dadosFormulario: this.dadosForm.value,
       geradoPorIA: !!this.conteudoGerado
     };
@@ -433,6 +440,19 @@ export class GerarDocumentoComponent implements OnInit, OnDestroy {
   get tipoControls() { return this.tipoForm.controls; }
   get dadosControls() { return this.dadosForm.controls; }
   get conteudoControls() { return this.conteudoForm.controls; }
+
+  // Selecionar imagem e converter para Data URL
+  onImagemSelecionada(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input?.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      this.conteudoForm.patchValue({ imagemUrl: dataUrl });
+    };
+    reader.readAsDataURL(file);
+  }
 
   // Verificar se uma aba pode ser acessada
   podeAcessarAba(abaId: string): boolean {

@@ -344,6 +344,46 @@
           </div>
         </div>
 
+        <!-- Imagem do Documento -->
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label for="imagemUrl" class="form-label">Imagem do Documento (URL)</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="imagemUrl" 
+                formControlName="imagemUrl"
+                placeholder="Cole uma URL de imagem ou selecione um arquivo"
+              />
+              <small class="text-muted">Você pode colar uma URL de imagem ou usar o seletor de arquivo ao lado.</small>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Selecionar Imagem</label>
+              <input 
+                type="file" 
+                class="form-control" 
+                accept="image/*"
+                (change)="onImagemSelecionada($event)"
+              />
+              <small class="text-muted">Ao selecionar um arquivo, ele será convertido para Data URL e salvo junto ao documento.</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="row" *ngIf="conteudoForm.value.imagemUrl">
+          <div class="col-12">
+            <div class="mb-3">
+              <label class="form-label">Preview da Imagem</label>
+              <div class="text-center">
+                <img [src]="conteudoForm.value.imagemUrl" alt="Imagem do Documento" style="max-height: 120px; max-width: 100%; object-fit: contain; border: 1px solid #dee2e6; border-radius: 6px; padding: 6px;" />
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="row">
           <div class="col-12">
             <div class="mb-3">
@@ -404,6 +444,9 @@
         <div class="card-body">
           <h5>{{ conteudoForm.value.titulo }}</h5>
           <hr>
+          <div class="text-center mb-3" *ngIf="conteudoForm.value.imagemUrl">
+            <img [src]="conteudoForm.value.imagemUrl" alt="Imagem do Documento" style="max-height: 100px; max-width: 100%; object-fit: contain;" />
+          </div>
           <div class="documento-preview">
             <pre>{{ conteudoForm.value.conteudo }}</pre>
           </div>
