@@ -12,6 +12,7 @@ import { Footer } from './footer/footer';
 
 @Component({
   selector: 'app-admin',
+  standalone: true,
   imports: [ConfigurationComponent, RouterModule, NavBarComponent, NavigationComponent, CommonModule, BreadcrumbComponent, Footer],
   templateUrl: './admin.component.html',
   styleUrls: ['./admin.component.scss']
@@ -29,8 +30,8 @@ export class AdminComponent {
   constructor() {
     this.windowWidth = window.innerWidth;
     this.navCollapsedMob = false;
-    // Iniciar com menu colapsado por padrão
-    this.navCollapsed = true;
+    // Iniciar com menu ABERTO por padrão (desktop e mobile)
+    this.navCollapsed = false;
   }
 
   @HostListener('window:resize', ['$event'])
@@ -39,16 +40,24 @@ export class AdminComponent {
     this.windowWidth = event.target.innerWidth;
     if (this.windowWidth < 992) {
       document.querySelector('.pcoded-navbar')?.classList.add('menupos-static');
-      if (document.querySelector('app-navigation.pcoded-navbar')?.classList.contains('navbar-collapsed')) {
-        document.querySelector('app-navigation.pcoded-navbar')?.classList.remove('navbar-collapsed');
+      const navEl = document.querySelector('#nav-ps-gradient-able') as HTMLElement | null;
+      if (navEl) {
+        navEl.style.height = '100%';
       }
     }
   }
 
   // public method
+  navCollapse() {
+    // Alterna o estado de colapso do menu lateral (desktop)
+    this.navCollapsed = !this.navCollapsed;
+  }
+
   navMobClick() {
     if (this.windowWidth < 992) {
-      if (this.navCollapsedMob && !document.querySelector('app-navigation.pcoded-navbar')?.classList.contains('mob-open')) {
+      const nav = document.querySelector('app-navigation.pcoded-navbar');
+      const hasMobOpen = nav?.classList.contains('mob-open');
+      if (this.navCollapsedMob && !hasMobOpen) {
         this.navCollapsedMob = !this.navCollapsedMob;
         setTimeout(() => {
           this.navCollapsedMob = !this.navCollapsedMob;
@@ -66,8 +75,9 @@ export class AdminComponent {
   }
 
   closeMenu() {
-    if (document.querySelector('app-navigation.pcoded-navbar')?.classList.contains('mob-open')) {
-      document.querySelector('app-navigation.pcoded-navbar')?.classList.remove('mob-open');
+    const nav = document.querySelector('app-navigation.pcoded-navbar');
+    if (nav?.classList.contains('mob-open')) {
+      nav.classList.remove('mob-open');
     }
   }
 }

@@ -1,1 +1,13 @@
-// This file is intentionally left empty to allow customers to add custom CSS if needed.
+// Estilo mínimo para o botão de fechar/abrir ao lado do logo
+.menu-close {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 8px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.menu-close i {
+  font-size: 18px;
+  line-height: 1;
+}
