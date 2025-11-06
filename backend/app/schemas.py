@@ -100,3 +100,17 @@ class Documento(DocumentoBase):
 
     class Config:
         from_attributes = True
+
+
+# IA: Requisição e Resposta
+class DocumentoIARequest(BaseModel):
+    tipoDocumento: str
+    tomTexto: str
+    dadosFormulario: dict
+
+
+class DocumentoIAResponse(BaseModel):
+    conteudo: str
+    fundamentosJuridicos: str | None = None
+    pedidos: str | None = None
+    observacoes: str | None = None

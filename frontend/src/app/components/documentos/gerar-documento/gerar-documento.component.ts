@@ -219,13 +219,21 @@ export class GerarDocumentoComponent implements OnInit, OnDestroy {
     this.documentoService.gerarDocumentoComIA(tipoDocumento, tomTexto, dadosFormulario)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (conteudo) => {
-          this.conteudoGerado = conteudo;
+        next: (resp) => {
+          this.conteudoGerado = resp.conteudo;
+          // Preencher automaticamente campos específicos, se retornados
+          const patchDados: any = {};
+          if (resp.fundamentosJuridicos) patchDados.fundamentosJuridicos = resp.fundamentosJuridicos;
+          if (resp.pedidos) patchDados.pedidos = resp.pedidos;
+          if (resp.observacoes) patchDados.observacoes = resp.observacoes;
+          if (Object.keys(patchDados).length) {
+            this.dadosForm.patchValue(patchDados);
+          }
           
           // Atualizar formulário de conteúdo
           this.conteudoForm.patchValue({
             titulo: this.gerarTituloAutomatico(),
-            conteudo: conteudo
+            conteudo: resp.conteudo
           });
           
           // Navegar para aba de conteúdo

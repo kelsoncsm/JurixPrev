@@ -165,6 +165,110 @@ export class ListaDocumentosComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Download helpers (Word/PDF) a partir do item da lista
+  baixarWord(documento: DocumentoJuridico): void {
+    const titulo = (documento.titulo || 'Documento').toString().trim() || 'Documento';
+    const conteudo = (documento.conteudo || '').toString();
+    const html = this.montarHTMLDocumento(titulo, conteudo, documento);
+    const blob = new Blob([html], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${this.sanitizarNomeArquivo(titulo)}.doc`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  baixarPDF(documento: DocumentoJuridico): void {
+    const titulo = (documento.titulo || 'Documento').toString().trim() || 'Documento';
+    const conteudo = (documento.conteudo || '').toString();
+    const html = this.montarHTMLDocumento(titulo, conteudo, documento, true);
+    const win = window.open('', '_blank');
+    if (!win) {
+      alert('Não foi possível abrir a janela de impressão. Verifique o bloqueio de pop-ups.');
+      return;
+    }
+    win.document.open();
+    win.document.write(html);
+    win.document.close();
+    win.focus();
+    setTimeout(() => {
+      try { win.print(); } catch {}
+    }, 300);
+  }
+
+  private montarHTMLDocumento(titulo: string, conteudo: string, documento: DocumentoJuridico, modoImpressao: boolean = false): string {
+    const dados: any = documento.dadosFormulario || {};
+    const tipo = documento.tipoDocumento || '';
+    const tom = documento.tomTexto || '';
+    const imagemUrl = (documento as any)?.imagemUrl || '';
+    const corpoHtml = this.formatarConteudoParaHTML(conteudo);
+    const estilos = `
+      <style>
+        body { font-family: Arial, Helvetica, sans-serif; line-height: 1.5; color: #000; }
+        .doc-container { max-width: 800px; margin: 0 auto; padding: 24px; }
+        .doc-header { border-bottom: 2px solid #333; margin-bottom: 16px; padding-bottom: 8px; }
+        .doc-logo { display: flex; align-items: center; gap: 12px; }
+        .doc-logo img { max-height: 80px; max-width: 200px; object-fit: contain; }
+        .doc-meta { font-size: 12px; color: #555; margin-top: 4px; }
+        .doc-title { font-size: 22px; font-weight: bold; margin: 16px 0; }
+        .doc-content { font-size: 14px; white-space: normal; }
+        .doc-content p { margin: 0 0 12px; }
+        .doc-content br { line-height: 1.2; }
+        ${modoImpressao ? '@page { margin: 20mm; }' : ''}
+      </style>
+    `;
+    const cabecalho = `
+      <div class="doc-header">
+        ${imagemUrl ? `<div class="doc-logo"><img src="${this.escapeHtml(imagemUrl)}" alt="Imagem do Documento" /></div>` : ''}
+        <div><strong>Tipo:</strong> ${this.escapeHtml(tipo)} | <strong>Tom:</strong> ${this.escapeHtml(tom)}</div>
+        <div class="doc-meta">
+          <div><strong>Cliente:</strong> ${this.escapeHtml(dados?.nomeCliente || '')}</div>
+          ${dados?.cpfCnpj ? `<div><strong>CPF/CNPJ:</strong> ${this.escapeHtml(dados.cpfCnpj)}</div>` : ''}
+          ${dados?.email ? `<div><strong>E-mail:</strong> ${this.escapeHtml(dados.email)}</div>` : ''}
+          ${dados?.numeroProcesso ? `<div><strong>Processo:</strong> ${this.escapeHtml(dados.numeroProcesso)}</div>` : ''}
+        </div>
+      </div>
+    `;
+    return `<!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8" />
+          <title>${this.escapeHtml(titulo)}</title>
+          ${estilos}
+        </head>
+        <body>
+          <div class="doc-container">
+            ${cabecalho}
+            <div class="doc-title">${this.escapeHtml(titulo)}</div>
+            <div class="doc-content">${corpoHtml}</div>
+          </div>
+        </body>
+      </html>`;
+  }
+
+  private formatarConteudoParaHTML(texto: string): string {
+    const linhas = (texto || '').split(/\r?\n/).map(l => this.escapeHtml(l));
+    const blocos = linhas.map(l => l.trim().length ? `<p>${l}</p>` : '<br>');
+    return blocos.join('');
+  }
+
+  private escapeHtml(valor: string): string {
+    return (valor || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/\"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  private sanitizarNomeArquivo(nome: string): string {
+    return (nome || 'documento')
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-zA-Z0-9-_ ]/g, '')
+      .replace(/\s+/g, '-');
+  }
+
   getClasseStatus(status: StatusDocumento): string {
     const classes: Record<string, string> = {
       [StatusDocumento.RASCUNHO]: 'text-warning',

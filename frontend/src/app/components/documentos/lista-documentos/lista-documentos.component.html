@@ -154,6 +154,24 @@
               </button>
               <button
                 type="button"
+                class="btn btn-outline-success"
+                (click)="baixarWord(documento)"
+                [disabled]="!documento.conteudo"
+                title="Baixar Word"
+              >
+                <i class="fas fa-file-word"></i>
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-secondary"
+                (click)="baixarPDF(documento)"
+                [disabled]="!documento.conteudo"
+                title="Baixar PDF"
+              >
+                <i class="fas fa-file-pdf"></i>
+              </button>
+              <button
+                type="button"
                 class="btn btn-outline-danger"
                 (click)="excluirDocumento(documento)"
                 title="Excluir"

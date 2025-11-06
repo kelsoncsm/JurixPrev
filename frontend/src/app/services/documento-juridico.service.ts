@@ -143,98 +143,14 @@ export class DocumentoJuridicoService {
     );
   }
 
-  gerarDocumentoComIA(tipoDocumento: TipoDocumento, tomTexto: TomTexto, dadosFormulario: DadosFormulario): Observable<string> {
-    const conteudo = this.gerarConteudoIA(tipoDocumento, dadosFormulario, tomTexto);
-    return of(conteudo).pipe(delay(2000)); // Simular tempo de processamento da IA
+  gerarDocumentoComIA(tipoDocumento: TipoDocumento, tomTexto: TomTexto, dadosFormulario: DadosFormulario): Observable<{ conteudo: string; fundamentosJuridicos?: string; pedidos?: string; observacoes?: string }> {
+    return this.http.post<{ conteudo: string; fundamentosJuridicos?: string; pedidos?: string; observacoes?: string }>(`${environment.apiUrl}/documentos/gerar-ia`, {
+      tipoDocumento,
+      tomTexto,
+      dadosFormulario
+    });
   }
 
-  private gerarConteudoIA(tipoDocumento: TipoDocumento, dadosFormulario: DadosFormulario, tomTexto: TomTexto): string {
-    // Templates básicos para diferentes tipos de documento
-    const templates: Record<string, string> = {
-      [TipoDocumento.PETICAO_INICIAL]: `
-EXCELENTÍSSIMO SENHOR DOUTOR JUIZ DE DIREITO DA ${dadosFormulario.vara || '[VARA]'}
-
-${dadosFormulario.nomeCliente || '[NOME DO CLIENTE]'}, ${dadosFormulario.qualificacaoCliente || '[QUALIFICAÇÃO]'}, por meio de seu advogado que esta subscreve, vem respeitosamente à presença de Vossa Excelência propor a presente
-
-PETIÇÃO INICIAL
-
-em face de ${dadosFormulario.nomeReu || '[NOME DO RÉU]'}, ${dadosFormulario.qualificacaoReu || '[QUALIFICAÇÃO DO RÉU]'}, pelos fatos e fundamentos jurídicos a seguir expostos:
-
-I - DOS FATOS
-
-${dadosFormulario.relatoFatos || '[RELATO DOS FATOS]'}
-
-II - DO DIREITO
-
-${dadosFormulario.fundamentacaoJuridica || '[FUNDAMENTAÇÃO JURÍDICA]'}
-
-III - DOS PEDIDOS
-
-Diante do exposto, requer-se:
-
-a) ${dadosFormulario.pedidos || '[PEDIDOS]'};
-
-b) A condenação da parte requerida ao pagamento das custas processuais e honorários advocatícios.
-
-Termos em que pede deferimento.
-
-${dadosFormulario.localData || '[LOCAL E DATA]'}
-
-${dadosFormulario.nomeAdvogado || '[NOME DO ADVOGADO]'}
-OAB/[UF] nº ${dadosFormulario.oabAdvogado || '[NÚMERO OAB]'}
-      `,
-      [TipoDocumento.PROCURACAO]: `
-PROCURAÇÃO
-
-OUTORGANTE: ${dadosFormulario.nomeCliente || '[NOME DO CLIENTE]'}, ${dadosFormulario.qualificacaoCliente || '[QUALIFICAÇÃO]'}
-
-OUTORGADO: ${dadosFormulario.nomeAdvogado || '[NOME DO ADVOGADO]'}, advogado, inscrito na OAB/[UF] sob o nº ${dadosFormulario.oabAdvogado || '[NÚMERO OAB]'}
-
-PODERES: O outorgante confere ao outorgado os poderes para representá-lo em juízo ou fora dele, podendo propor ações, contestar, transigir, desistir, renunciar ao direito sobre que se funda a ação, receber citação, confessar, firmar compromisso, dar e receber quitação e praticar todos os atos necessários ao bom desempenho do mandato.
-
-${dadosFormulario.localData || '[LOCAL E DATA]'}
-
-_________________________________
-${dadosFormulario.nomeCliente || '[NOME DO CLIENTE]'}
-Outorgante
-      `,
-      [TipoDocumento.CONTRATO_HONORARIOS]: `
-CONTRATO DE PRESTAÇÃO DE SERVIÇOS ADVOCATÍCIOS
-
-CONTRATANTE: ${dadosFormulario.nomeCliente || '[NOME DO CLIENTE]'}, ${dadosFormulario.qualificacaoCliente || '[QUALIFICAÇÃO]'}
-
-CONTRATADO: ${dadosFormulario.nomeAdvogado || '[NOME DO ADVOGADO]'}, advogado, inscrito na OAB/[UF] sob o nº ${dadosFormulario.oabAdvogado || '[NÚMERO OAB]'}
-
-DO OBJETO: O presente contrato tem por objeto a prestação de serviços advocatícios relacionados a ${dadosFormulario.objetoContrato || '[OBJETO DO CONTRATO]'}.
-
-DOS HONORÁRIOS: Os honorários advocatícios são fixados em R$ ${dadosFormulario.valorHonorarios || '[VALOR]'}, a serem pagos ${dadosFormulario.formaPagamento || '[FORMA DE PAGAMENTO]'}.
-
-${dadosFormulario.localData || '[LOCAL E DATA]'}
-
-_________________________________        _________________________________
-${dadosFormulario.nomeCliente || '[CONTRATANTE]'}        ${dadosFormulario.nomeAdvogado || '[CONTRATADO]'}
-      `
-    };
-
-    const conteudo = templates[tipoDocumento] || `Documento do tipo ${tipoDocumento} gerado automaticamente pela IA.
-
-Dados do cliente: ${dadosFormulario.nomeCliente || 'Não informado'}
-Procedimento: ${dadosFormulario.numeroProcedimento || 'Não informado'}
-
-Este é um modelo básico que deve ser personalizado conforme as necessidades específicas do caso.`;
-
-    // Ajustar tom do texto baseado na seleção
-    switch (tomTexto) {
-      case TomTexto.SIMPLIFICADO:
-        return conteudo.replace(/Excelentíssimo/g, 'Ilustríssimo')
-                      .replace(/respeitosamente/g, '')
-                      .replace(/Vossa Excelência/g, 'Vossa Senhoria');
-      case TomTexto.PERSUASIVO:
-        return `${conteudo}\n\nCom a devida vênia, os fatos e fundamentos apresentados demonstram de forma inequívoca o direito pleiteado, razão pela qual se espera o deferimento dos pedidos formulados.`;
-      default:
-        return conteudo;
-    }
-  }
 
   private gerarId(): string {
     return Math.random().toString(36).substr(2, 9);

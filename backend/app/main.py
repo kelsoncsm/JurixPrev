@@ -3,6 +3,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials, OAuth2Pas
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from uuid import UUID
+import os
 
 from .database import Base, engine, get_db, SessionLocal
 from . import schemas, crud
@@ -267,3 +268,119 @@ def remover_documento(documento_id: UUID, db: Session = Depends(get_db), current
         raise HTTPException(status_code=403, detail="Sem acesso ao recurso")
     crud.delete_documento(db, doc)
     return {"ok": True}
+
+
+# IA Jurídica: geração de conteúdos
+@app.post("/documentos/gerar-ia", response_model=schemas.DocumentoIAResponse)
+def gerar_documento_ia(payload: schemas.DocumentoIARequest, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    """Gera Fundamentos Jurídicos, Pedidos, Observações e Conteúdo completo via IA.
+    Se a variável OPENAI_API_KEY não estiver configurada, usa um gerador local simples.
+    """
+    dados = payload.dadosFormulario or {}
+
+    # Se o cliente informou campos já preenchidos, respeitamos e apenas completamos o restante
+    fundamentos_in = dados.get("fundamentosJuridicos") or dados.get("fundamentacaoJuridica")
+    pedidos_in = dados.get("pedidos")
+    observacoes_in = dados.get("observacoes")
+
+    openai_api_key = os.getenv("OPENAI_API_KEY")
+
+    def _fallback_generate():
+        # Geração simples baseada nos dados de entrada
+        nome = dados.get("nomeCliente") or "[NOME DO CLIENTE]"
+        reu = dados.get("nomeReu") or "[PARTE CONTRÁRIA]"
+        vara = dados.get("vara") or "[VARA]"
+        comarca = dados.get("comarca") or "[COMARCA]"
+        processo = dados.get("numeroProcesso") or dados.get("numeroProcedimento") or "[NÚMERO DO PROCESSO]"
+        valor_causa = dados.get("valorCausa")
+
+        fundamentos = fundamentos_in or (
+            f"O direito do(a) autor(a) {nome} encontra amparo nos arts. 186 e 927 do Código Civil, que estabelecem a obrigação de indenizar em razão de ato ilícito, além das disposições específicas aplicáveis ao caso concreto. Considerando os fatos narrados e a relação jurídica entre as partes, a responsabilidade de {reu} é objetiva/subjectiva, conforme o entendimento consolidado na jurisprudência dos tribunais."
+        )
+        pedidos = pedidos_in or (
+            "a) Citação da parte ré para, querendo, contestar a presente ação;\n"
+            "b) Condenação da parte ré ao cumprimento da obrigação nos termos expostos;\n"
+            "c) Condenação ao pagamento de custas e honorários;\n"
+            + (f"d) Fixação do valor da causa em R$ {valor_causa}." if valor_causa else "d) Demais medidas cabíveis.")
+        )
+        observacoes = observacoes_in or (
+            f"Processo nº {processo} em trâmite na {vara} da Comarca de {comarca}. As partes podem celebrar acordo, caso desejem, observando-se os princípios da boa-fé e da cooperação processual."
+        )
+
+        titulo = f"{payload.tipoDocumento} - {nome}"
+        conteudo = (
+            f"EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA {vara} DA COMARCA DE {comarca}\n\n"
+            f"{nome}, por seu advogado, vem propor a presente {payload.tipoDocumento} em face de {reu}, pelos fatos e fundamentos a seguir.\n\n"
+            "I - DOS FATOS\n"
+            + (dados.get("relatoFatos") or "[RELATO DOS FATOS]") + "\n\n"
+            "II - DOS FUNDAMENTOS JURÍDICOS\n"
+            + fundamentos + "\n\n"
+            "III - DOS PEDIDOS\n"
+            + pedidos + "\n\n"
+            "IV - DAS OBSERVAÇÕES\n"
+            + observacoes + "\n\n"
+            "Termos em que, pede deferimento."
+        )
+
+        # Ajuste simples de tom
+        tom = (payload.tomTexto or "Técnico").lower()
+        if "simpl" in tom:
+            conteudo = conteudo.replace("EXCELENTÍSSIMO(A)", "ILUSTRÍSSIMO(A)")
+        elif "persuas" in tom:
+            conteudo += "\n\nDiante da robustez dos fundamentos, é de rigor o acolhimento dos pedidos."
+
+        return schemas.DocumentoIAResponse(
+            conteudo=conteudo,
+            fundamentosJuridicos=fundamentos,
+            pedidos=pedidos,
+            observacoes=observacoes,
+        )
+
+    # Tenta usar OpenAI se possível
+    if openai_api_key:
+        try:
+            import json
+            import requests
+            # Monta prompt em português e solicita retorno em JSON
+            system_prompt = (
+                "Você é um assistente jurídico que redige peças em português, com base nos dados fornecidos. "
+                "Retorne um JSON com as chaves: fundamentosJuridicos, pedidos, observacoes, conteudo."
+            )
+            user_prompt = {
+                "tipoDocumento": payload.tipoDocumento,
+                "tomTexto": payload.tomTexto,
+                "dados": dados,
+            }
+            body = {
+                "model": "gpt-4o-mini",  # modelo genérico; pode ser ajustado por config
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": json.dumps(user_prompt, ensure_ascii=False)},
+                ],
+                "response_format": {"type": "json_object"}
+            }
+            resp = requests.post(
+                "https://api.openai.com/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {openai_api_key}",
+                    "Content-Type": "application/json",
+                },
+                data=json.dumps(body),
+                timeout=25,
+            )
+            if resp.status_code == 200:
+                data_out = resp.json()
+                content = data_out["choices"][0]["message"]["content"]
+                parsed = json.loads(content)
+                return schemas.DocumentoIAResponse(
+                    conteudo=parsed.get("conteudo") or "",
+                    fundamentosJuridicos=parsed.get("fundamentosJuridicos"),
+                    pedidos=parsed.get("pedidos"),
+                    observacoes=parsed.get("observacoes"),
+                )
+        except Exception:
+            # Fallback em caso de erro na chamada externa
+            pass
+
+    # Fallback padrão
+    return _fallback_generate()
