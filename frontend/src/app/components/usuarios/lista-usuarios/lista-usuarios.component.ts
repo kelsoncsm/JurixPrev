@@ -23,6 +23,7 @@ export class ListaUsuariosComponent {
   perfil: 'A' | 'U' = 'U';
   editingUserId: string | null = null;
   alterarSenha = false;
+  showModal = false;
 
   constructor(private usuariosService: UsuarioService, private router: Router) {
     this.loadUsuarios();
@@ -73,6 +74,7 @@ export class ListaUsuariosComponent {
     this.perfil = u.perfil;
     this.senha = '';
     this.alterarSenha = false;
+    this.showModal = true;
   }
 
   excluir(u: Usuario) {
@@ -147,6 +149,9 @@ export class ListaUsuariosComponent {
           if (idx >= 0) this.usuarios[idx] = u;
           this.resetForm();
           this.carregando = false;
+          this.showModal = false;
+          this.aplicarFiltro();
+          alert('Usuário atualizado com sucesso');
         },
         error: (err) => {
           console.error('Erro ao atualizar usuário:', err);
@@ -164,6 +169,8 @@ export class ListaUsuariosComponent {
         this.usuarios.push(u);
         this.resetForm();
         this.carregando = false;
+        this.aplicarFiltro();
+        alert('Usuário criado com sucesso');
       },
       error: (err) => {
         console.error('Erro ao registrar usuário:', err);
@@ -180,5 +187,10 @@ export class ListaUsuariosComponent {
     this.perfil = 'U';
     this.editingUserId = null;
     this.alterarSenha = false;
+    this.showModal = false;
+  }
+
+  closeModal() {
+    this.showModal = false;
   }
 }

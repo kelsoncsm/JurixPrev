@@ -14,10 +14,10 @@
       </div>
     </div>
  
-    <div class="card">
-      <div class="card-body">
-        <div class="table-responsive">
-          <table class="table table-striped">
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-striped">
             <thead>
               <tr>
                 <th>Nome</th>
@@ -54,4 +54,56 @@
       </div>
     </div>
   </div>
+
+  <!-- Modal de Edição -->
+  <div class="modal fade show d-block" tabindex="-1" role="dialog" *ngIf="showModal" aria-modal="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Editar Usuário</h5>
+          <button type="button" class="btn-close" aria-label="Close" (click)="closeModal()"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="nome" class="form-label">Nome</label>
+              <input id="nome" type="text" class="form-control" [(ngModel)]="nome" placeholder="Nome completo" />
+            </div>
+            <div class="col-md-6">
+              <label for="perfil" class="form-label">Perfil</label>
+              <select id="perfil" class="form-select" [(ngModel)]="perfil">
+                <option value="U">Usuário</option>
+                <option value="A">Administrador</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row g-3 mt-2">
+            <div class="col-md-6">
+              <label for="login" class="form-label">Login</label>
+              <input id="login" type="text" class="form-control" [(ngModel)]="login" [readonly]="true" />
+            </div>
+            <div class="col-md-6">
+              <div class="form-check mt-4">
+                <input class="form-check-input" type="checkbox" id="alterarSenha" [(ngModel)]="alterarSenha" />
+                <label class="form-check-label" for="alterarSenha">Alterar senha</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-3 mt-2" *ngIf="alterarSenha">
+            <div class="col-md-6">
+              <label for="novaSenha" class="form-label">Nova Senha</label>
+              <input id="novaSenha" type="password" class="form-control" [(ngModel)]="senha" placeholder="Informe a nova senha" />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
+          <button type="button" class="btn btn-primary" (click)="registrar()" [disabled]="carregando">Salvar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop fade show" *ngIf="showModal" (click)="closeModal()"></div>
 </div>

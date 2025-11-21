@@ -11,8 +11,8 @@ Este repositório segue um modelo de organização para projetos com frontend em
   - Fluxo de trabalho recomendado e checklist
 
 ## Desenvolvimento
-
-- Backend: `uvicorn app.main:app --reload --host 127.0.0.1 --port 8000`
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+- Backend: ``
 - Frontend: `npm start` dentro de `frontend/`
 - Capturas do fluxo (e2e): `npm run capture:flow` dentro de `frontend/` (gera imagens em `frontend/e2e/screenshots/`)
 
